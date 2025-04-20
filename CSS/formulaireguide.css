@@ -1,0 +1,263 @@
+/* Réinitialisation des styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* Style du header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 50px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    width :100%;
+    z-index: 100;
+    background: transparent ;
+}
+
+.logo img {
+    width: 70px;
+    height: 70px;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+nav ul li {
+    display: inline;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #004080;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+nav ul li a:hover {
+    color: #ff6600;
+}
+
+.guide a {
+    text-decoration: none;
+    background-color: #ff6600; /* Exemple de couleur */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+}
+
+
+
+
+/* Section Hero */
+.hero {
+    background: url("82f2a18b2d4d5d3d3d5b496e833121f856487fea35bf5456fe1a3991b7459cac.jpg") center/cover no-repeat;
+    height: 500px;
+    width: 100%;
+    display: inline-block;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: rgb(248, 251, 252);
+}
+
+.hero-content  {
+    font-size: 36px;
+    font-weight: bold;
+    position: relative;
+    top: 100px; /* Ajuste la valeur pour descendre le texte */
+    
+    
+}
+
+.hero-content span {
+    color: #ff9800;
+}
+
+/* Section Inscription */
+.inscription {
+    background: #e7d6d6a8;
+    margin-left: 300px;
+    margin-right: 300px;
+    padding: 50px;
+    text-align: center;
+    border-radius: 20px;
+    position: relative;
+    top: 200px; 
+    
+}
+
+.inscription h2 {
+    font-size: 24px;
+    color: #003366;
+    margin-bottom: 15px;
+}
+
+.tarif {
+    font-size: 18px;
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+.highlight {
+    color: #ff9800;
+}
+
+.details {
+    font-size: 16px;
+    margin: 10px 0;
+}
+
+.inscription ul {
+    list-style: none;
+    margin-top: 20px;
+}
+
+.inscription ul li {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    
+}
+.container {
+    
+    max-width: 800px;
+    margin: auto;
+}
+h2 {
+    color: #003366;
+}
+.required::after {
+    content: " *";
+    color: red;
+}
+.form-group {
+    display: flex;
+    flex-wrap: wrap;
+    
+    margin-bottom: 15px;
+}
+.form-file{
+    display: inline;
+    flex-wrap: wrap;
+    flex-direction: column;
+    margin-bottom: 50px
+}
+.form-file input {
+    border: none;
+}
+ label  {
+    flex: 1;
+    min-width: 200px;
+    font-weight: bold;
+}
+.form-group input, .form-group select , .form-group textarea , .form-file input, .form-file textarea {
+    flex: 2;
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+button {
+    background-color: #FF8800;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+button:hover {
+    background-color: #E67E00;
+}
+
+
+
+
+footer {
+    background-color: #144a82;
+    color: white;
+    padding: 40px 20px;
+    text-align: center;
+    margin-top: 100px;
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.footer-section {
+    flex: 1;
+    min-width: 250px;
+    margin-bottom: 20px;
+}
+
+.footer-section h2, .footer-section h3 {
+    color: #ff8c00;
+    margin-bottom: 10px;
+}
+
+.footer-section p, .footer-section a {
+    color: #ddd;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.footer-section a:hover {
+    color: #ff8c00;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section ul li {
+    margin: 8px 0;
+}
+
+.footer-section ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+.footer-section ul li a:hover {
+    text-decoration: underline;
+    color: #ff8c00;
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.social-icons img {
+    width: 30px;
+    height: 30px;
+    transition: transform 0.3s;
+}
+
+.social-icons img:hover {
+    transform: scale(1.1);
+}
+
+.footer-bottom {
+    margin-top: 20px;
+    border-top: 1px solid #ff8c00;
+    padding-top: 10px;
+    font-size: 14px;
+}

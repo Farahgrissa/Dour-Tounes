@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kairouan - Dour Tounes</title>
+    <link rel="stylesheet" href="../CSS/kairouan.css">
+    <link href="https://fonts.googleapis.com/css2?family=Moon+Dance&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="logo.png" alt="Logo Tourisme">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="dour-tounes.html">Accueil</a></li>
+                <li><a href="#">Destinations</a></li>
+                <li><a href="#">Panoramas</a></li>
+                <li><a href="#">Activités</a></li>
+                <li><a href="#">Partenaires</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="guide">
+            <a href="formulaireguide.html">Je suis guide</a>
+        </div>
+    </header>
+
+    <section class="description-with-bg">
+        <div class="description-overlay">
+            <div class="description-content">
+                <h1>Kairouan, Capitale Spirituelle</h1>
+                <div class="highlight-box">
+                    <p>Fondée au 7ème siècle</p>
+                    <p>Classée au patrimoine mondial</p>
+                    <p>Ville sainte de l’Islam maghrébin</p>
+                </div>
+                <p class="description-text">
+                    Cœur battant de l’histoire islamique en Tunisie, Kairouan fascine par ses mosquées monumentales,
+                    ses souks animés et son ambiance mystique. Laissez-vous guider dans les ruelles de cette cité
+                    chargée de spiritualité et de savoir.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <div class="carousel-container">
+        <div class="carousel-slider">
+            <img src="../images/kairouan1.jpg" alt="Image 1">
+            <img src="../images/kairouan2.jpg" alt="Image 2">
+            <img src="../images/kairouan3.jpg" alt="Image 3">
+            <img src="../images/kairouan4.jpg" alt="Image 4">
+        </div>
+    </div>
+
+    <section class="map-section">
+        <h2 class="special-title">Localisation de Kairouan</h2>
+        <div class="map-container">
+            <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3301.7743203102735!2d10.100979515312302!3d35.6780853801956!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1302bd7b0869a3b3%3A0xb4147a2b8d68f09!2sKairouan!5e0!3m2!1sfr!2stn!4v1717350000000" 
+                width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy">
+            </iframe>
+        </div>
+    </section>
+
+    <section class="guides-carousel">
+        <h2 class="special-title">Nos Guides Experts</h2>
+        <div class="guides-container">
+            <!-- Répéter avec de vraies données -->
+            <div class="guide-card">
+                <img src="../images/guides/k-guide1.jpg" alt="Guide Ahmed Bouzid">
+                <div class="guide-info">
+                    <h3>Ahmed Bouzid</h3>
+                    <div class="rating">★★★★★ (4.9/5)</div>
+                    <div class="specialties">
+                        <span>Visites historiques</span>
+                        <span>Patrimoine islamique</span>
+                    </div>
+                    <button class="contact-btn">Contacter ce guide</button>
+                </div>
+            </div>
+            <!-- Ajouter plus de guides ici -->
+        </div>
+    </section>
+
+    <section class="hotels-carousel">
+        <h2 class="special-title">Nos Hôtels Partenaires</h2>
+        <div class="hotels-container">
+            <div class="hotel-card">
+                <img src="../images/h-kairouan1.jpg" alt="Hôtel Kasbah Kairouan">
+                <div class="hotel-info">
+                    <h3>Kasbah Kairouan</h3>
+                    <div class="rating">★★★★☆ (4.3/5)</div>
+                    <div class="amenities">
+                        <span>Vue sur la Médina</span>
+                        <span>Petit-déjeuner inclus</span>
+                    </div>
+                    <div class="price">À partir de 180 TND/nuit</div>
+                    <button class="reserve-btn">Réserver maintenant</button>
+                </div>
+            </div>
+            <!-- Ajouter d'autres hôtels -->
+        </div>
+    </section>
+
+    <section class="restaurants-carousel">
+        <h2 class="special-title">Nos Restaurants Sélectionnés</h2>
+        <div class="restaurants-container">
+            <div class="restaurant-card">
+                <img src="../images/res-kairouan1.jpg" alt="Restaurant El Bey">
+                <div class="restaurant-info">
+                    <h3>El Bey</h3>
+                    <div class="rating">★★★★☆ (4.4/5)</div>
+                    <div class="cuisine">
+                        <span>Spécialités kairouanaises</span>
+                        <span>Douceurs orientales</span>
+                    </div>
+                    <button class="reserve-btn">Réserver une table</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <h2 class="titre">Activités touristiques à Kairouan</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Activité</th>
+                    <th>Lieu</th>
+                    <th>Durée</th>
+                    <th>Prix</th>
+                    <th>Icône</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Visite de la Grande Mosquée</td>
+                    <td>Médina</td>
+                    <td>1h</td>
+                    <td>5€</td>
+                    <td><i class="fas fa-mosque icon"></i></td>
+                </tr>
+                <tr>
+                    <td>Exploration des bassins des Aghlabides</td>
+                    <td>Nord de la ville</td>
+                    <td>30 min</td>
+                    <td>Gratuit</td>
+                    <td><i class="fas fa-water icon"></i></td>
+                </tr>
+                <tr>
+                    <td>Dégustation des makrouds</td>
+                    <td>Souk principal</td>
+                    <td>1h</td>
+                    <td>2€</td>
+                    <td><i class="fas fa-cookie icon"></i></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section about">
+                <h2>Dour Tounes</h2>
+                <p>Rejoignez notre plateforme et attirez plus de voyageurs en quelques minutes. Partagez votre passion et faites découvrir la Tunisie.</p>
+            </div>
+
+            <div class="footer-section links">
+                <h3>Liens utiles</h3>
+                <ul>
+                    <li><a href="dour-tounes.html">Accueil</a></li>
+                    <li><a href="#">À propos</a></li>
+                    <li><a href="#">Nos guides</a></li>
+                    <li><a href="#">Avis</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section contact">
+                <h3>Contact</h3>
+                <p>Email : <a href="mailto:contact@dour-Tounes.com">contact@dour-Tounes.com</a></p>
+                <p>Téléphone : +33 1 23 45 67 89</p>
+                <p>Adresse : 123, Rue des Voyages, Tunis, Tunis</p>
+            </div>
+
+            <div class="footer-section social">
+                <h3>Suivez-nous</h3>
+                <div class="social-icons">
+                    <a href="#"><img src="../images/fb.webp" alt="Facebook"></a>
+                    <a href="#"><img src="../images/mail.png" alt="email"></a>
+                    <a href="#"><img src="../images/insta.jpeg" alt="Instagram"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2025 Dour Tounes | Tous droits réservés.</p>
+        </div>
+    </footer>
+</body>
+</html>

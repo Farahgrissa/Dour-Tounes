@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Connexion</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background: #f4f4f4;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 15px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: #0d6efd;
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0b5ed7;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Connexion</h2>
+    <form onsubmit="return login()">
+      <label for="role">Je suis :</label>
+      <select id="role" required>
+        <option value="">Choisir un rôle</option>
+        <option value="guide">Guide</option>
+        <option value="client">Client</option>
+      </select>
+
+      <label for="email">Email :</label>
+      <input type="email" id="email" placeholder="Email" required />
+
+      <label for="password">Mot de passe :</label>
+      <input type="password" id="password" placeholder="Mot de passe" required />
+
+      <button type="submit">Se connecter</button>
+    </form>
+  </div>
+
+  <script>
+    function login() {
+      const role = document.getElementById("role").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      if (role === "guide" && email === "guide@example.com" && password === "guide123") {
+        window.location.href = "page-guide.html"; // à créer
+      } else if (role === "client" && email === "client@example.com" && password === "client123") {
+        window.location.href = "page-client.html"; // à créer
+      } else {
+        alert("Identifiants incorrects ou rôle invalide !");
+      }
+
+      return false;
+    }
+  </script>
+</body>
+</html>
