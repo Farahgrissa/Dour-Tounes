@@ -12,7 +12,7 @@ if (isset($_GET['delete'])) {
 // Récupération liste
 $guides = $db->query("SELECT * FROM guides ORDER BY nom")->fetchAll();
 
-include '../templates/header.php';
+include '../template/header.php';
 ?>
 
 <h2>Gestion des guides</h2>
@@ -41,4 +41,4 @@ include '../templates/header.php';
     </tbody>
 </table>
 
-<?php include '../templates/footer.php'; ?>
+<?php include '../template/footer.php'; ?>

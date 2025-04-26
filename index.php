@@ -1,6 +1,6 @@
-<?php
-session_start();
-require 'config.php';
+
+<?php 
+require_once './config.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -8,26 +8,26 @@ require 'config.php';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dour tounes</title>
-    <link rel="stylesheet" href="../CSS/dour-tounes.css" />
+    <link rel="stylesheet" href="./public/CSS/dourtounes.css" />
   </head>
 
   <body>
     <header>
       <div class="logo">
-        <img src="../images/logo1.png" alt="Logo Tourisme" />
+        <img src="./images/logos/logo1.png" alt="Logo Tourisme" />
       </div>
       <nav>
         <ul>
           <li>
             <a href="#accueil">Accueil</a>
           </li>
-          <li><a href="#panoramas">Panoramas</a></li>
+          <li><a href="#panoramas">destinations</a></li>
           <li><a href="#activites">Activités</a></li>
           <li><a href="#contact">Contact</a></li>
         </ul>
       </nav>
       <div class="guide">
-        <a href="role.html">Connexion</a>
+        <a href="./public/connexion.php">Connexion</a>
       </div>
     </header>      
 
@@ -55,25 +55,25 @@ require 'config.php';
         <h2>Panoramas</h2>
         <div class="destinations">
           <div class="destination">
-            <img src="../images/kairaoun1.jpg" alt="Pierre" />
+            <img src="./images/monument/kairaoun1.jpg" alt="Pierre" />
             <h3>Monuments</h3>
-            <a href="monument.html">Découvrir les destinations</a>
+            <a href="./public/monument.html">Découvrir les destinations</a>
           </div>
           <div class="destination">
-            <img src="../images/tozeur2.jpg" alt="Desert" />
+            <img src="./images/desert/tozeur2.jpg" alt="Desert" />
             <h3>Desert</h3>
-            <a href="desert.html">Découvrir les destinations</a>
+            <a href="./public/destinations/desert.html">Découvrir les destinations</a>
           </div>
           <div class="destination">
-            <img src="../images/zaghouan.jpg" alt="Terre" />
+            <img src="./images/nature/zaghouan.jpg" alt="Terre" />
             <h3>Terre</h3>
-            <a href="nature.html"
+            <a href="./public/destinations/nature.html"
               >Découvrir les destinations</a>
             </div>
           <div class="destination">
-            <img src="../images/dj.jpg" alt="Mer" />
+            <img src="./images/mer/dj.jpg" alt="Mer" />
             <h3>Mer</h3>
-            <a href="mer.html">Découvrir les destinations</a>
+            <a href="./public/destinations/mer.html">Découvrir les destinations</a>
           </div>
         </div>
       </section>
@@ -116,7 +116,7 @@ require 'config.php';
           <!-- Images animées -->
           <div class="image-section">
             <div class="image-box">
-              <img src="../images/jemaa.jpg" alt="196 Destinations" />
+              <img src="./images/monument/jemaa.jpg" alt="196 Destinations" />
               <div class="overlay">
                 196 <br />
                 Destinations
@@ -124,7 +124,7 @@ require 'config.php';
             </div>
 
             <div class="image-box">
-              <img src="../images/sidi bousaid.jpg" alt="1148 Guides touristiques" />
+              <img src="./images/mer/sidi bousaid.jpg" alt="1148 Guides touristiques" />
 
               <div class="overlay">
                 1148 <br />
@@ -163,12 +163,12 @@ require 'config.php';
               >
             </li>
           </ul>
-          <a href="formulaireguide.html"
+          <a href="./public/formulaires/formulaireguide.html"
             ><button class="cta-button">JE M'INSCRIS MAINTENANT</button></a
           >
         </div>
         <div class="image-section">
-          <img src="../images/Register.jpg" alt="Guide Touristique" />
+          <img src="./images/logos/Register.jpg" alt="Guide Touristique" />
         </div>
       </section>
 
@@ -189,7 +189,7 @@ require 'config.php';
                 <h3>David K'ouas</h3>
                 <p class="date">2023-12-30</p>
               </div>
-              <img class="google-icon" src="../images/google-icon.png" alt="Google" />
+              <img class="google-icon" src="./images/logos/google-icon.png" alt="Google" />
             </div>
             <div class="stars">⭐⭐⭐⭐⭐</div>
             <p class="avis-text">
@@ -206,7 +206,7 @@ require 'config.php';
                 <h3>Valerie Ollivier</h3>
                 <p class="date">2023-12-05</p>
               </div>
-              <img class="google-icon" src="../images/google-icon.png" alt="Google" />
+              <img class="google-icon" src="./images/logos/google-icon.png" alt="Google" />
             </div>
             <div class="stars">⭐⭐⭐⭐⭐</div>
             <p class="avis-text">
@@ -223,7 +223,7 @@ require 'config.php';
                 <h3>Pablo Carrascosa</h3>
                 <p class="date">2023-09-24</p>
               </div>
-              <img class="google-icon" src="../images/google-icon.png" alt="Google" />
+              <img class="google-icon" src="./images/logos/google-icon.png" alt="Google" />
             </div>
             <div class="stars">⭐⭐⭐⭐⭐</div>
             <p class="avis-text">
@@ -236,7 +236,7 @@ require 'config.php';
           </div>
         </div>
 
-        <a href="avis.html"
+        <a href="/dourtounes/public/formulaires/avis.php"
           ><button class="btn-avis">LAISSEZ VOTRE AVIS</button></a
         >
       </section>
@@ -289,9 +289,9 @@ require 'config.php';
         <div class="footer-section social">
           <h3>Suivez-nous</h3>
           <div class="social-icons">
-            <a href="#"><img src="../images/fb.webp" alt="Facebook" /></a>
-            <a href="#"><img src="../images/mail.png" alt="email" /></a>
-            <a href="#"><img src="../images/insta.jpeg" alt="Instagram" /></a>
+            <a href="#"><img src="./images/logos/fb.webp" alt="Facebook" /></a>
+            <a href="#"><img src="./images/logos/mail.png" alt="email" /></a>
+            <a href="#"><img src="./images/logos/insta.jpeg" alt="Instagram" /></a>
           </div>
         </div>
       </div>

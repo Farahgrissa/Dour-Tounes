@@ -20,7 +20,7 @@ $avis = $db->prepare("
 // Récupération infos client
 $client = $db->prepare("SELECT nom FROM clients WHERE id = ?")->execute([$client_id])->fetch();
 
-include '../templates/header.php';
+include '../template/header.php';
 ?>
 
 <h2>Avis de <?= htmlspecialchars($client['nom']) ?></h2>
@@ -50,4 +50,4 @@ include '../templates/header.php';
     <?php endforeach; ?>
 </table>
 
-<?php include '../templates/footer.php'; ?>
+<?php include '../template/footer.php'; ?>

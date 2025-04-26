@@ -5,63 +5,82 @@
     box-sizing: border-box;
     font-family: 'Arial', sans-serif;
 }
-
-/* Header */
 header {
-    position: fixed; /* Rend le header fixe */
-    top: 0;          /* Collé en haut */
-    left: 0;         /* Collé à gauche */
-    width: 100%;     /* Prend toute la largeur */
-    z-index: 1000;   /* Garde le header au-dessus du contenu */
-    background:rgba(255, 255, 255, 0.9);
-    padding: 15px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 50px;
+    background: rgba(255, 255, 255, 0.9);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    width: 100%;
+    z-index: 100;
+    background: transparent;
 }
 main {
     margin-top: 80px; /* Ajustez cette valeur selon la hauteur de votre header */
 }
 
-.header-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 20px;
-}
-
 .logo img {
-    height: 50px;
+    width: 70px;
+    height: 70px;
 }
 
 nav ul {
-    display: flex;
-    gap: 30px;
     list-style: none;
-}
-
-nav a {
-    color: #1a237e;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s;
-}
-
-nav a:hover {
-    color: #ff6f00;
-}
-
-/* Hero Section */
-.hero {
-    height: 60vh;
-    background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)),
-                url('../images/korbos2.jpeg');
-    background-size: cover;
-    background-position: center;
     display: flex;
-    align-items: flex-end;
-    padding: 100px 50px 50px;
+    gap: 20px;
+}
+
+nav ul li {
+    display: inline;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #004080;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+nav ul li a:hover {
+    color: #ff6600;
+}
+
+.guide a {
+    text-decoration: none;
+    background-color: #ff6600; /* Exemple de couleur */
     color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+}
+
+
+
+
+/* Section Hero */
+.hero {
+    background: url("82f2a18b2d4d5d3d3d5b496e833121f856487fea35bf5456fe1a3991b7459cac.jpg") center/cover no-repeat;
+    height: 500px;
+    width: 100%;
+    display: inline-block;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: rgb(248, 251, 252);
+}
+
+.hero-content  {
+    font-size: 36px;
+    font-weight: bold;
+    position: relative;
+    top: 100px; /* Ajuste la valeur pour descendre le texte */
+    
+    
+}
+
+.hero-content span {
+    color: #ff9800;
 }
 
 .hero-content h1 {

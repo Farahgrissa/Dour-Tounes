@@ -5,7 +5,6 @@
     box-sizing: border-box;
     font-family: Arial, sans-serif;
 }
-
 /* Style du header */
 header {
     display: flex;
@@ -15,9 +14,9 @@ header {
     background: rgba(255, 255, 255, 0.9);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     position: fixed;
-    width :100%;
+    width: 100%;
     z-index: 100;
-    background: transparent ;
+    background: transparent;
 }
 
 .logo img {
@@ -48,18 +47,15 @@ nav ul li a:hover {
 
 .guide a {
     text-decoration: none;
-    background-color: #ff6600; /* Exemple de couleur */
+    background-color: #ff6600;
     color: white;
     padding: 10px 20px;
     border-radius: 20px;
 }
 
 
-
-
-/* Section Hero */
 .hero {
-    background: url("82f2a18b2d4d5d3d3d5b496e833121f856487fea35bf5456fe1a3991b7459cac.jpg") center/cover no-repeat;
+    background: url("../images/.jpg") center/cover no-repeat;
     height: 500px;
     width: 100%;
     display: inline-block;
@@ -69,18 +65,17 @@ nav ul li a:hover {
     color: rgb(248, 251, 252);
 }
 
-.hero-content  {
+.hero-content {
     font-size: 36px;
     font-weight: bold;
     position: relative;
-    top: 100px; /* Ajuste la valeur pour descendre le texte */
-    
-    
+    top: 100px;
 }
 
 .hero-content span {
     color: #ff9800;
 }
+
 
 /* Section Inscription */
 .inscription {

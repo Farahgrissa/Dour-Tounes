@@ -11,21 +11,20 @@ require_once __DIR__ . '/../auth_check.php';
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8">a 
     <title>Administration - Dour Tounes</title>
-    <link rel="stylesheet" href="/admin/assets/admin.css">
+    <link rel="stylesheet" href="../CSS/admin.css">
 </head>
 <body>
 
 <header class="admin-header">
     <div class="container">
-        <h1>👨‍💼 Panneau d'administration</h1>
+        <h1>Panneau d'administration</h1>
         <nav class="admin-nav">
             <ul>
-                <li><a href="/admin/index.php">🏠 Accueil</a></li>
-                <li><a href="/admin/guides/index.php">📚 Guides</a></li>
-                <li><a href="/admin/clients/index.php">🧑‍💼 Clients</a></li>
-                <li><a href="/admin/clients/avis.php">💬 Avis</a></li>
+                <li><a href="/admin/index.php">Accueil</a></li>
+                <li><a href="/admin/guides/index.php">Guides</a></li>
+                <li><a href="/admin/clients/index.php">Clients</a></li>
                 <li><a href="/logout.php">🔓 Déconnexion</a></li>
             </ul>
         </nav>

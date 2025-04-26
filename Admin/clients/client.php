@@ -10,9 +10,9 @@ if (isset($_GET['delete'])) {
 }
 
 // Récupération clients
-$clients = $db->query("SELECT id, nom, email FROM clients ORDER BY nom")->fetchAll();
+$clients = $db->query("SELECT id, nom, email FROM touristes ORDER BY nom")->fetchAll();
 
-include '../templates/header.php';
+include '../template/header.php';
 ?>
 
 <h2>Gestion des clients</h2>
@@ -36,4 +36,4 @@ include '../templates/header.php';
     <?php endforeach; ?>
 </table>
 
-<?php include '../templates/footer.php'; ?>
+<?php include '../template/footer.php'; ?>

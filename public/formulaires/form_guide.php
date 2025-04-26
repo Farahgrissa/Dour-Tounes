@@ -15,15 +15,15 @@
         </div>
         <nav>
             <ul>
-                <li><a href="page_d'accueil.html">Accueil</a></li>
-                <li><a href="page_d'accueil.html">Destinations</a></li>
+                <li><a href="#">Accueil</a></li>
+                <li><a href="#">Panoramas</a></li>
                 <li><a href="#">Activités</a></li>
                 <li><a href="#">Contact</a></li>
                 
             </ul>
         </nav>
         <div class="guide">
-            <a href="#">Je suis guide</a>
+            <a href="../connexion.php">connexion</a>
         </div>
     </header>
 
@@ -59,7 +59,7 @@
 <div class="container">
     <h2>Les champs marqués d'une <span style="color: red;">*</span> sont obligatoires</h2>
 
-    <form action="connexion_guide.php" method="POST">
+    <form action="connexion.php" method="POST">
         
         <div class="form-group">
             <label for="civilite" class="required">Civilité</label>
@@ -82,17 +82,6 @@
         <div class="form-group">
             <label for="email" class="required">Email de contact pour les touristes</label>
             <input type="email" name="email" required>
-        </div>
-
-        <div class="form-group">
-            <label for="pays" class="required">Pays où vous êtes guide</label>
-            <select name="pays" required>
-                <option value="">Veuillez choisir une option</option>
-                <option value="France">France</option>
-                <option value="Maroc">Maroc</option>
-                <option value="Italie">Italie</option>
-               
-            </select>
         </div>
 
         <div class="form-group">
@@ -162,7 +151,7 @@
         <div class="footer-section links">
             <h3>Liens utiles</h3>
             <ul>
-                <li><a href="#">Accueil</a></li>
+                <li><a href="/dourtounes/index.php">Accueil</a></li>
                 <li><a href="#">À propos</a></li>
                 <li><a href="#">Nos guides</a></li>
                 <li><a href="#">Avis</a></li>
