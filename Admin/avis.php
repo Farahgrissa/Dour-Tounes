@@ -1,5 +1,10 @@
 <?php
-require_once '../auth_check.php';
+
+require_once '../config.php';
+
+if (!isset($_GET['client_id'])) {
+    die('Le paramètre client_id est manquant.');
+}
 
 $client_id = (int)$_GET['client_id'];
 
@@ -9,25 +14,21 @@ if (isset($_POST['delete_avis'])) {
     $_SESSION['feedback'] = "Avis supprimé";
 }
 
-// Récupération des avis du client
 $avis = $db->prepare("
-    SELECT a.*, d.nom AS destination 
-    FROM avis a
-    LEFT JOIN destinations d ON a.destination_id = d.id
-    WHERE a.client_id = ?
+    SELECT * 
+    FROM avis
+    WHERE client_id = ?
 ")->execute([$client_id])->fetchAll();
 
-// Récupération infos client
 $client = $db->prepare("SELECT nom FROM clients WHERE id = ?")->execute([$client_id])->fetch();
 
-include '../template/header.php';
+include 'header.php';
 ?>
 
 <h2>Avis de <?= htmlspecialchars($client['nom']) ?></h2>
 
 <table>
     <tr>
-        <th>Destination</th>
         <th>Note</th>
         <th>Commentaire</th>
         <th>Date</th>
@@ -35,7 +36,6 @@ include '../template/header.php';
     </tr>
     <?php foreach ($avis as $a): ?>
     <tr>
-        <td><?= htmlspecialchars($a['destination']) ?></td>
         <td><?= str_repeat('★', $a['note']) ?></td>
         <td><?= htmlspecialchars($a['commentaire']) ?></td>
         <td><?= $a['date_creation'] ?></td>
@@ -50,4 +50,4 @@ include '../template/header.php';
     <?php endforeach; ?>
 </table>
 
-<?php include '../template/footer.php'; ?>
+<?php include 'footer.php'; ?>

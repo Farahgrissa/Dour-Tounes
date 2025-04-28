@@ -7,17 +7,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $password = $_POST["password"] ?? '';
     $error = '';
 
-    // 1. Vérifier s'il s'agit d'un admin
-    if ($email === "admin@dourtounes.tn") {
-        $admin_password_hash = '$2y$10$D7zZ8b0yQsE8D0mFzQOSneYf7f.V6KoN6eYoWACoix1OSdvazHLEa'; // hash de "admin123"
-        if (password_verify($password, $admin_password_hash)) {
-            $_SESSION['admin_logged_in'] = true;
-            header("Location: admin/index.php");
-            exit();
-        } else {
-            $error = "Mot de passe incorrect pour l'admin.";
-        }
+ 
+// 1. Vérifier s'il s'agit d'un admin
+if ($email === "admin@dourtounes.tn") {
+    $admin_password = 'admin123'; // mot de passe en clair
+    if ($password === $admin_password) {
+        $_SESSION['admin_logged_in'] = true;
+        header("Location: ../admin/admin.php");
+        exit();
     } else {
+        $error = "Mot de passe incorrect pour l'admin.";
+    }
+}
+else {
         // 2. Vérifier dans la base de données (touriste ou guide)
         $conn = new mysqli("localhost", "root", "", "dour_tounes");
         if ($conn->connect_error) {
@@ -25,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         // Cherche dans touristes
-        $sql = "SELECT * FROM touristes WHERE email = ?";
+        $sql = "SELECT * FROM clients WHERE email = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -34,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $user = $result->fetch_assoc();
             if (password_verify($password, $user['password'])) {
                 $_SESSION['touriste'] = $user;
-                header("Location: accueil_touriste.php");
+                header("Location: client.php");
                 exit();
             } else {
                 $error = "Mot de passe incorrect (touriste).";
@@ -343,9 +345,9 @@ nav ul li a:hover {
       <nav>
         <ul>
           <li>
-            <a href="#accueil">Accueil</a>
+            <a href="/dourtounes/index.php">Accueil</a>
           </li>
-          <li><a href="#panoramas">destinations</a></li>
+          <li><a href="/dourtounes/index.php">panoramas</a></li>
           <li><a href="#activites">Activités</a></li>
           <li><a href="#contact">Contact</a></li>
         </ul>
@@ -366,7 +368,7 @@ nav ul li a:hover {
     </form>
 
     <p>Pas encore inscrit ?</p>
-    <p><a href="../public/formulaires/form_guide.php">Inscrivez-vous en tant que Guide</a> | <a href="../public/formulaires/form_touriste.php">Inscrivez-vous en tant que touriste</a></p>
+    <p><a href="../public/formulaires/form_guide.php">Inscrivez-vous en tant que Guide</a> | <a href="../public/formulaires/form_client.php">Inscrivez-vous en tant que touriste</a></p>
 </div>
 <footer>
       <div class="footer-container">
@@ -382,7 +384,6 @@ nav ul li a:hover {
           <h3>Liens utiles</h3>
           <ul>
             <li><a href="#">Accueil</a></li>
-            <li><a href="#">À propos</a></li>
             <li><a href="#">Nos guides</a></li>
             <li><a href="#">Avis</a></li>
             <li><a href="#">Contact</a></li>

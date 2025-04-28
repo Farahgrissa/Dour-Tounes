@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <header>
         <div class="logo">
-            <img src="../images/logo.png" alt="Logo Tourisme">
+            <img src="../images/logos/logo.png" alt="Logo Tourisme">
         </div>
         <nav>
             <ul>
@@ -147,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <h2>Les champs marqués d'une <span style="color: red;">*</span> sont obligatoires</h2>
-        <form action="form_tourist.php" method="POST">
+        <form action="form_client.php" method="POST">
             <div class="form-group">
                 <label for="civilite" class="required">Civilité</label>
                 <input type="radio" name="civilite" value="Mr." <?= $formData['civilite'] === 'Mr.' ? 'checked' : '' ?> required> Mr.

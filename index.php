@@ -19,7 +19,7 @@ require_once './config.php';
       <nav>
         <ul>
           <li>
-            <a href="#accueil">Accueil</a>
+            <a href="#">Accueil</a>
           </li>
           <li><a href="#panoramas">destinations</a></li>
           <li><a href="#activites">Activités</a></li>
@@ -55,9 +55,9 @@ require_once './config.php';
         <h2>Panoramas</h2>
         <div class="destinations">
           <div class="destination">
-            <img src="./images/monument/kairaoun1.jpg" alt="Pierre" />
+            <img src="./public/images/monument/kairaoun1.jpg" alt="Pierre" />
             <h3>Monuments</h3>
-            <a href="./public/monument.html">Découvrir les destinations</a>
+            <a href="./destinations/monument.html">Découvrir les destinations</a>
           </div>
           <div class="destination">
             <img src="./images/desert/tozeur2.jpg" alt="Desert" />
@@ -65,13 +65,13 @@ require_once './config.php';
             <a href="./public/destinations/desert.html">Découvrir les destinations</a>
           </div>
           <div class="destination">
-            <img src="./images/nature/zaghouan.jpg" alt="Terre" />
+            <img src="./public/images/nature/zaghouan.jpg" alt="Terre" />
             <h3>Terre</h3>
             <a href="./public/destinations/nature.html"
               >Découvrir les destinations</a>
             </div>
           <div class="destination">
-            <img src="./images/mer/dj.jpg" alt="Mer" />
+            <img src="./public/images/mer/dj.jpg" alt="Mer" />
             <h3>Mer</h3>
             <a href="./public/destinations/mer.html">Découvrir les destinations</a>
           </div>
@@ -163,7 +163,7 @@ require_once './config.php';
               >
             </li>
           </ul>
-          <a href="./public/formulaires/formulaireguide.html"
+          <a href="public/formulaires/form_guide.php"
             ><button class="cta-button">JE M'INSCRIS MAINTENANT</button></a
           >
         </div>
@@ -236,7 +236,7 @@ require_once './config.php';
           </div>
         </div>
 
-        <a href="/dourtounes/public/formulaires/avis.php"
+        <a href="/formulaires/avis.php"
           ><button class="btn-avis">LAISSEZ VOTRE AVIS</button></a
         >
       </section>
@@ -267,7 +267,6 @@ require_once './config.php';
           <h3>Liens utiles</h3>
           <ul>
             <li><a href="#">Accueil</a></li>
-            <li><a href="#">À propos</a></li>
             <li><a href="#">Nos guides</a></li>
             <li><a href="#">Avis</a></li>
             <li><a href="#">Contact</a></li>

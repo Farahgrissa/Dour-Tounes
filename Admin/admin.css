@@ -1,59 +1,208 @@
-/* === Style général du body === */
-body {
+
+* {
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f6f9;
+    box-sizing: border-box;
 }
 
-.admin-header {
-    background-color: #004080;
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Header */
+header {
+    background-color: #333;
     color: white;
     padding: 15px 0;
     text-align: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
 }
 
-.admin-header h1 {
+header h1 {
+    font-size: 32px;
     margin: 0;
-    font-size: 24px;
-    letter-spacing: 1px;
 }
 
-.nav-links {
+header nav {
     margin-top: 10px;
+}
+
+header nav a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    margin: 0 10px;
+    font-size: 18px;
+    transition: background-color 0.3s;
+}
+
+header nav a:hover {
+    background-color: #28a745;
+    border-radius: 4px;
+}
+
+/* Main section (content) */
+main {
+    margin-top: 80px; /* Décalage pour ne pas être masqué par le header */
+    padding: 20px;
+    text-align: center;
+}
+
+/* Section de présentation */
+section.hero {
+    background: url('path/to/your/image.jpg') no-repeat center center/cover;
+    color: white;
+    padding: 100px 0;
+    text-align: center;
+}
+
+section.hero h2 {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+section.hero p {
+    font-size: 20px;
+    margin-bottom: 30px;
+}
+
+section.hero a {
+    background-color: #28a745;
+    color: white;
+    padding: 15px 30px;
+    font-size: 18px;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+section.hero a:hover {
+    background-color: #218838;
+}
+
+/* Services Section */
+section.services {
     display: flex;
-    justify-content: center;
-    gap: 25px;
+    justify-content: space-between;
+    margin: 50px 0;
+    padding: 0 20px;
+}
+
+section.services .service {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 30%;
+    text-align: center;
+    transition: transform 0.3s;
+}
+
+section.services .service:hover {
+    transform: translateY(-10px);
+}
+
+section.services .service h3 {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+section.services .service p {
+    font-size: 16px;
+}
+
+section.services .service a {
+    text-decoration: none;
+    color: #28a745;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+section.services .service a:hover {
+    text-decoration: underline;
+}
+/* Footer Styles */
+footer {
+    background-color: #144a82;
+    color: white;
+    padding: 40px 20px;
+    text-align: center;
+    margin-top: 100px;
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.footer-section {
+    flex: 1;
+    min-width: 250px;
+    margin-bottom: 20px;
+}
+
+.footer-section h2, .footer-section h3 {
+    color: #ff8c00;
+    margin-bottom: 10px;
+}
+
+.footer-section p, .footer-section a {
+    color: #ddd;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.footer-section a:hover {
+    color: #ff8c00;
+}
+
+.footer-section ul {
+    list-style: none;
     padding: 0;
 }
 
-.nav-links a {
+.footer-section ul li {
+    margin: 8px 0;
+}
+
+.footer-section ul li a {
     color: white;
     text-decoration: none;
-    font-weight: bold;
-    transition: color 0.3s ease;
 }
 
-.nav-links a:hover {
-    color: #a8d0ff;
+.footer-section ul li a:hover {
+    text-decoration: underline;
+    color: #ff8c00;
 }
 
-.admin-footer {
-    background-color: #333;
-    color: #fff;
-    padding: 12px 0;
-    text-align: center;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.social-icons img {
+    width: 30px;
+    height: 30px;
+    transition: transform 0.3s;
+}
+
+.social-icons img:hover {
+    transform: scale(1.1);
+}
+
+.footer-bottom {
+    margin-top: 20px;
+    border-top: 1px solid #ff8c00;
+    padding-top: 10px;
     font-size: 14px;
-    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-}
-
-.container {
-    width: 90%;
-    margin: 0 auto;
-    max-width: 1200px;
 }
