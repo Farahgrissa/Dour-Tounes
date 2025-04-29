@@ -296,7 +296,283 @@
                 <p>&copy; 2025 Dour Tounes | Tous droits réservés.</p>
             </div>
         </footer>
-   
+   <script>
+    // Attendre que le DOM soit entièrement chargé
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialisation des carrousels
+    initCarousel();
+    
+    // Initialisation des boutons de contact et de réservation
+    initButtons();
+    
+    // Animation au défilement
+    initScrollAnimations();
+});
+
+/**
+ * CARROUSEL D'IMAGES
+ * Gère le défilement automatique et manuel du carrousel principal
+ */
+function initCarousel() {
+    // Gestion du carrousel principal avec animation CSS déjà en place
+    // On peut ajouter des contrôles manuels si nécessaire
+    const carouselSlider = document.querySelector('.carousel-slider');
+    
+    // Pause au survol (déjà géré en CSS, mais on peut ajouter des fonctionnalités)
+    if (carouselSlider) {
+        carouselSlider.addEventListener('mouseenter', () => {
+            carouselSlider.style.animationPlayState = 'paused';
+        });
+        
+        carouselSlider.addEventListener('mouseleave', () => {
+            carouselSlider.style.animationPlayState = 'running';
+        });
+    }
+}
+
+/**
+ * BOUTONS ET INTERACTIONS
+ * Initialise les boutons de contact des guides et de réservation pour les hôtels/restaurants
+ */
+function initButtons() {
+    // Boutons de contact pour les guides
+    const contactButtons = document.querySelectorAll('.contact-btn');
+    contactButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // ID du guide (à récupérer depuis un attribut data-* par exemple)
+            const guideName = this.closest('.guide-card').querySelector('h3').textContent;
+            openContactModal(guideName);
+        });
+    });
+    
+    // Boutons de réservation pour les hôtels et restaurants
+    const reserveButtons = document.querySelectorAll('.reserve-btn');
+    reserveButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const itemType = this.closest('.hotel-card') ? 'hotel' : 'restaurant';
+            const itemName = this.closest(itemType === 'hotel' ? '.hotel-card' : '.restaurant-card').querySelector('h3').textContent;
+            openReservationModal(itemType, itemName);
+        });
+    });
+}
+
+/**
+ * MODAL DE CONTACT
+ * Ouvre une fenêtre modale pour contacter un guide
+ */
+function openContactModal(guideName) {
+    // Création de la modale de contact si elle n'existe pas déjà
+    let modal = document.querySelector('.contact-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.className = 'contact-modal';
+        modal.innerHTML = `
+            <div class="contact-modal-content">
+                <span class="modal-close">&times;</span>
+                <h2>Contacter le guide</h2>
+                <form class="contact-form">
+                    <input type="hidden" id="guide-name" value="${guideName}">
+                    <label for="name">Votre nom</label>
+                    <input type="text" id="name" required>
+                    <label for="email">Votre email</label>
+                    <input type="email" id="email" required>
+                    <label for="message">Votre message</label>
+                    <textarea id="message" rows="5" required></textarea>
+                    <button type="submit" class="form-submit">Envoyer</button>
+                </form>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Gestion de la fermeture de la modale
+        const closeBtn = modal.querySelector('.modal-close');
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+        
+        // Soumission du formulaire
+        const form = modal.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Ici, ajoutez le code pour envoyer les données du formulaire
+            alert(`Votre message a bien été envoyé à ${guideName}. Nous vous contacterons bientôt.`);
+            modal.style.display = 'none';
+        });
+    } else {
+        // Mise à jour du nom du guide si la modale existe déjà
+        modal.querySelector('#guide-name').value = guideName;
+    }
+    
+    // Affichage de la modale
+    modal.style.display = 'block';
+}
+
+/**
+ * MODAL DE RÉSERVATION
+ * Ouvre une fenêtre modale pour réserver un hôtel ou un restaurant
+ */
+function openReservationModal(itemType, itemName) {
+    // Création de la modale de réservation si elle n'existe pas déjà
+    let modal = document.querySelector('.reservation-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.className = 'reservation-modal';
+        
+        // Adapter le contenu en fonction du type (hôtel ou restaurant)
+        const title = itemType === 'hotel' ? 'Réserver une chambre' : 'Réserver une table';
+        const specificField = itemType === 'hotel' 
+            ? `<label for="checkin">Date d'arrivée</label>
+               <input type="date" id="checkin" required>
+               <label for="checkout">Date de départ</label>
+               <input type="date" id="checkout" required>
+               <label for="guests">Nombre de personnes</label>
+               <input type="number" id="guests" min="1" max="10" value="2" required>`
+            : `<label for="reservation-date">Date de réservation</label>
+               <input type="date" id="reservation-date" required>
+               <label for="reservation-time">Heure</label>
+               <input type="time" id="reservation-time" required>
+               <label for="people">Nombre de personnes</label>
+               <input type="number" id="people" min="1" max="20" value="2" required>`;
+        
+        modal.innerHTML = `
+            <div class="modal-content">
+                <span class="modal-close">&times;</span>
+                <h2>${title} - ${itemName}</h2>
+                <form class="reservation-form">
+                    <input type="hidden" id="item-name" value="${itemName}">
+                    <input type="hidden" id="item-type" value="${itemType}">
+                    <label for="fullname">Nom complet</label>
+                    <input type="text" id="fullname" required>
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required>
+                    <label for="phone">Téléphone</label>
+                    <input type="tel" id="phone" required>
+                    ${specificField}
+                    <button type="submit" class="form-submit">Confirmer la réservation</button>
+                </form>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Gestion de la fermeture de la modale
+        const closeBtn = modal.querySelector('.modal-close');
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+        
+        // Fermeture en cliquant en dehors de la modale
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                modal.style.display = 'none';
+            }
+        });
+        
+        // Soumission du formulaire
+        const form = modal.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Message de confirmation adapté
+            const confirmationMessage = itemType === 'hotel' 
+                ? `Votre réservation à l'hôtel ${itemName} a bien été enregistrée.` 
+                : `Votre table au restaurant ${itemName} a bien été réservée.`;
+            
+            alert(confirmationMessage);
+            modal.style.display = 'none';
+        });
+    } else {
+        // Mise à jour des informations si la modale existe déjà
+        modal.querySelector('#item-name').value = itemName;
+        modal.querySelector('#item-type').value = itemType;
+        
+        // Mise à jour du titre
+        const title = itemType === 'hotel' ? 'Réserver une chambre' : 'Réserver une table';
+        modal.querySelector('h2').textContent = `${title} - ${itemName}`;
+    }
+    
+    // Affichage de la modale
+    modal.style.display = 'block';
+}
+
+/**
+ * ANIMATIONS AU DÉFILEMENT
+ * Anime les éléments lorsqu'ils deviennent visibles pendant le défilement
+ */
+function initScrollAnimations() {
+    // Sélection des éléments à animer
+    const elementsToAnimate = document.querySelectorAll('.guide-card, .hotel-card, .restaurant-card, .special-title');
+    
+    // Configuration de l'observateur d'intersection
+    const options = {
+        root: null, // Utilise la fenêtre comme conteneur
+        rootMargin: '0px', // Pas de marge
+        threshold: 0.1 // Déclenche lorsque 10% de l'élément est visible
+    };
+    
+    // Fonction de callback pour l'animation
+    const animateOnScroll = (entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Ajoute une classe pour l'animation
+                entry.target.classList.add('fade-in-element');
+                
+                // Arrête d'observer une fois animé
+                observer.unobserve(entry.target);
+            }
+        });
+    };
+    
+    // Création de l'observateur
+    const observer = new IntersectionObserver(animateOnScroll, options);
+    
+    // Ajoute les éléments à observer
+    elementsToAnimate.forEach(element => {
+        observer.observe(element);
+    });
+    
+    // Ajoute le style CSS nécessaire pour l'animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in-element {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        
+        .guide-card, .hotel-card, .restaurant-card, .special-title {
+            opacity: 0;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+/**
+ * STICKY HEADER
+ * Rend le header collant lors du défilement
+ */
+window.addEventListener('scroll', function() {
+    const header = document.querySelector('header');
+    if (window.scrollY > 50) {
+        header.classList.add('sticky');
+    } else {
+        header.classList.remove('sticky');
+    }
+});
+
+// Ajouter le style pour le header sticky
+const headerStyle = document.createElement('style');
+headerStyle.textContent = `
+    header.sticky {
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+`;
+document.head.appendChild(headerStyle);
+   </script>
     
 </body>
 </html>
