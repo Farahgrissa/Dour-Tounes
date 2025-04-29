@@ -1,13 +1,10 @@
 <?php
-$host = 'localhost';
-$dbname = 'dour_tounes'; 
-$username = 'root'; 
-$password = ''; 
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo = new PDO('mysql:host=localhost;dbname=dour_tounes;charset=utf8', 'root', '');
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    die("Erreur de connexion à la base de données : " . $e->getMessage());
+    die('Erreur de connexion à la base de données : ' . $e->getMessage());
 }
 ?>
+

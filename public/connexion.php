@@ -1,64 +1,54 @@
 <?php
 session_start();
-require_once '../config.php'; // adapte le chemin si besoin
+require_once '../config.php'; // Connexion à la base de données avec PDO
+
 $error = '';
+$email = $_POST['email'] ?? '';
+$password = $_POST['password'] ?? '';
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $email = $_POST["email"] ?? '';
-    $password = $_POST["password"] ?? '';
-    $error = '';
+    // 1. Vérification de l'email dans la table des admins
+    $sql = "SELECT * FROM admins WHERE email = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$email]);
 
- 
-// 1. Vérifier s'il s'agit d'un admin
-if ($email === "admin@dourtounes.tn") {
-    $admin_password = 'admin123'; // mot de passe en clair
-    if ($password === $admin_password) {
-        $_SESSION['admin_logged_in'] = true;
-        header("Location: ../admin/admin.php");
-        exit();
-    } else {
-        $error = "Mot de passe incorrect pour l'admin.";
-    }
-}
-else {
-        // 2. Vérifier dans la base de données (touriste ou guide)
-        $conn = new mysqli("localhost", "root", "", "dour_tounes");
-        if ($conn->connect_error) {
-            die("Erreur de connexion : " . $conn->connect_error);
+    $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($admin) {
+        // Vérification du mot de passe pour l'admin (mot de passe haché)
+        if (password_verify($password, $admin['password'])) {
+            $_SESSION['admin_logged_in'] = true;
+            $_SESSION['admin_id'] = $admin['id'];
+            header("Location: ../admin/index.php");
+            exit();
+        } else {
+            $error = "Mot de passe incorrect pour l'administrateur.";
         }
-
-        // Cherche dans touristes
+    } else {
         $sql = "SELECT * FROM clients WHERE email = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if ($result && $result->num_rows === 1) {
-            $user = $result->fetch_assoc();
-            if (password_verify($password, $user['password'])) {
-                $_SESSION['touriste'] = $user;
-                header("Location: client.php");
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$email]);
+
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($user && password_verify($password, $user['password'])) {
+            $_SESSION['touriste'] = $user;
+            header("Location: ../index.php");
+            exit();
+        } else {
+            // 3. Si non trouvé dans clients, on vérifie dans guides
+            $sql = "SELECT * FROM guides WHERE email = ?";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$email]);
+
+            $guide = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($guide && password_verify($password, $guide['password'])) {
+                $_SESSION['guide'] = $guide;
+                header("Location: ../index.php");
                 exit();
             } else {
-                $error = "Mot de passe incorrect (touriste).";
-            }
-        } else {
-            // Sinon, cherche dans guides
-            $sql = "SELECT * FROM guides WHERE email = ?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            if ($result && $result->num_rows === 1) {
-                $user = $result->fetch_assoc();
-                if (password_verify($password, $user['password'])) {
-                    $_SESSION['guide'] = $user;
-                    header("Location: accueil_guide.php");
-                    exit();
-                } else {
-                    $error = "Mot de passe incorrect (guide).";
-                }
-            } else {
-                $error = "Email non trouvé.";
+                $error = "Aucun utilisateur trouvé avec cet email et ce mot de passe.";
             }
         }
     }
@@ -72,8 +62,7 @@ else {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion</title>
     <style>
-      
-/* --- Style général du body --- */
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(to right, #f8f9fa, #e0e0e0);
@@ -83,7 +72,6 @@ body {
     flex-direction: column;
 }
 
-/* --- Container de connexion --- */
 .login-container {
     background: #ffffff;
     padding: 40px 30px;

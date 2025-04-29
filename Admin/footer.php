@@ -11,7 +11,7 @@
                 <li><a href="index.php">Accueil</a></li>
                 <li><a href="gerer_admins.php">Admins</a></li>
                 <li><a href="gerer_guides.php">Nos guides</a></li>
-                <li><a href="gerer_cliets.php">Nos clients</a></li>
+                <li><a href="gerer_clients.php">Nos clients</a></li>
                 <li><a href="avis.php">Avis</a></li>
 
             </ul>
@@ -27,9 +27,9 @@
         <div class="footer-section social">
             <h3>Suivez-nous</h3>
             <div class="social-icons">
-                <a href="#"><img src="./images/logos/fb.webp" alt="Facebook" /></a>
-                <a href="#"><img src="./images/logos/mail.png" alt="Email" /></a>
-                <a href="#"><img src="./images/logos/insta.jpeg" alt="Instagram" /></a>
+                <a href="#"><img src="../public/images/logos/fb.webp" alt="Facebook" /></a>
+                <a href="#"><img src="../public/images/logos/mail.png" alt="Email" /></a>
+                <a href="#"><img src="../public/images/logos/insta.jpeg" alt="Instagram" /></a>
             </div>
         </div>
     </div>

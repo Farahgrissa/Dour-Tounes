@@ -1,3 +1,66 @@
+<?php
+require_once '../../config.php';
+
+$errors = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Récupération des données
+    $civilite = $_POST['civilite'];
+    $prenom = $_POST['prenom'];
+    $nom = $_POST['nom'];
+    $email = $_POST['email'];
+    $password = $_POST['password'] ?? '';
+    $password_confirm = $_POST['password_confirm'] ?? '';
+
+    $langue_maternelle = $_POST['langue_maternelle'];
+    $telephone = $_POST['telephone'] ?? null;
+    $region = $_POST['region'] ?? null;
+    $langue1 = $_POST['langue1'];
+    $langue2 = $_POST['langue2'] ?? null;
+    $presentation = $_POST['presentation'];
+    $message = $_POST['message'] ?? null;
+    $date_inscription = date('Y-m-d H:i:s');
+
+    // Validation des mots de passe
+    if (strlen($password) < 8) {
+        $errors['password'] = "Le mot de passe doit contenir au moins 8 caractères.";
+    }
+    if ($password !== $password_confirm) {
+        $errors['password_confirm'] = "Les mots de passe ne correspondent pas.";
+    }
+
+    // Si aucune erreur
+    if (empty($errors)) {
+        // Hachage du mot de passe
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+        // Upload des fichiers
+        $photo = $_FILES['photo'];
+        $cartePro = $_FILES['carte_pro'];
+
+        $targetDir = "uploads/";
+        if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
+
+        $photoPath = $targetDir . basename($photo["name"]);
+        $cartePath = $targetDir . basename($cartePro["name"]);
+
+        move_uploaded_file($photo["tmp_name"], $photoPath);
+        move_uploaded_file($cartePro["tmp_name"], $cartePath);
+
+        // Insertion dans la base de données
+        $stmt = $pdo->prepare("INSERT INTO guides 
+            (civilite, prenom, nom, email, password, langue_maternelle, telephone, region, langue1, langue2, presentation, photo, carte_pro, message, date_inscription) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)");
+        $stmt->execute([
+            $civilite, $prenom, $nom, $email, $hashedPassword,
+            $langue_maternelle, $telephone, $region,
+            $langue1, $langue2, $presentation, $photoPath, $cartePath, $message,$date_inscription
+        ]);
+
+        $confirmation = "Inscription réussie ! Merci pour votre confiance.";
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -11,7 +74,7 @@
     
     <header>
         <div class="logo">
-            <img src="../images/logo.png" alt="Logo Tourisme">
+            <img src="../images/logos/logo.png" alt="Logo Tourisme">
         </div>
         <nav>
             <ul>
@@ -57,9 +120,15 @@
     <br><br><br><br> <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
 <div class="container">
+<div class="container">
     <h2>Les champs marqués d'une <span style="color: red;">*</span> sont obligatoires</h2>
 
-    <form action="connexion.php" method="POST">
+    <?php if (isset($confirmation)) : ?>
+        <p style="color: green; font-weight: bold;"><?= htmlspecialchars($confirmation) ?></p>
+    <?php endif; ?>
+
+    <form action="../connexion.php" method="POST" enctype="multipart/form-data">
+
         
         <div class="form-group">
             <label for="civilite" class="required">Civilité</label>
@@ -100,16 +169,15 @@
         </div>
 
         <div class="form-group">
-            <label for="langue" class="required">Langues de visite</label>
-            <input type="text" name="langue1" required placeholder="Saisir au moins une langue de visite .">
-            <input type="text" name="langue2" placeholder="Langue #2">
-            <input type="text" name="langue3" placeholder="Langue #3">
-            <input type="text" name="langue4" placeholder="Langue #4">
-            <input type="text" name="langue5" placeholder="Langue #5">
-        </div>
+    <label for="langue" class="required">Langues de visite</label>
+    <input type="text" name="langue1" required placeholder="Langue principale">
+    <input type="text" name="langue2" placeholder="Langue secondaire">
+    </div>
+
+
         <div class="form-file" >
             <label for="presentation" class="required">Presentation</label>
-            <textarea name="presentation" rows="4" minlength="350" placeholder="Ecrire quelques lignes de présentation qui apparaitront sur votre page dédiée" required></textarea>
+            <textarea name="presentation" rows="2" minlength="10" placeholder="Ecrire quelques lignes de présentation qui apparaitront sur votre page dédiée" required></textarea>
         </div>
         <br>
         <br>
@@ -131,16 +199,26 @@
         </div>
         <br>
         <br>
+        <div class="form-group">
+    <label for="password" class="required">Créer un mot de passe</label>
+    <input type="password" name="password" required minlength="8">
+    <?php if (isset($errors['password'])): ?>
+        <span class="error"><?= htmlspecialchars($errors['password']) ?></span>
+    <?php endif; ?>
+</div>
+
+<div class="form-group">
+    <label for="password_confirm" class="required">Confirmer le mot de passe</label>
+    <input type="password" name="password_confirm" required>
+    <?php if (isset($errors['password_confirm'])): ?>
+        <span class="error"><?= htmlspecialchars($errors['password_confirm']) ?></span>
+    <?php endif; ?>
+</div>
 
         
         <button type="submit">Soumettre</button>
     </form>
 </div>
-
-
-
-
-
 <footer>
     <div class="footer-container">
         <div class="footer-section about">
@@ -169,9 +247,9 @@
         <div class="footer-section social">
             <h3>Suivez-nous</h3>
             <div class="social-icons">
-                <a href="#"><img src="../images/fb.webp" alt="Facebook"></a>
-                <a href="#"><img src="../images/mail.png" alt="email"></a>
-                <a href="#"><img src="../images/insta.jpeg" alt="Instagram"></a>
+                <a href="#"><img src="../images/logos/fb.webp" alt="Facebook"></a>
+                <a href="#"><img src="../images/logos/mail.png" alt="email"></a>
+                <a href="#"><img src="../images/logos/insta.jpeg" alt="Instagram"></a>
             </div>
         </div>
     </div>

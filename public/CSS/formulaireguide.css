@@ -175,37 +175,39 @@ button:hover {
     background-color: #E67E00;
 }
 
-
-
-
+/* Footer */
 footer {
     background-color: #144a82;
     color: white;
-    padding: 40px 20px;
+    padding: 0px 20px;
     text-align: center;
-    margin-top: 100px;
+    margin-top: 50px;
+    width: 100%;
 }
-
 .footer-container {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
-    max-width: 1200px;
     margin: auto;
+    width: 100%;
+    padding: 40px 20px;
 }
 
 .footer-section {
     flex: 1;
-    min-width: 250px;
-    margin-bottom: 20px;
+    min-width: 200px;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
-.footer-section h2, .footer-section h3 {
+.footer-section h2, 
+.footer-section h3 {
     color: #ff8c00;
     margin-bottom: 10px;
 }
 
-.footer-section p, .footer-section a {
+.footer-section p, 
+.footer-section a {
     color: #ddd;
     text-decoration: none;
     font-size: 14px;
@@ -222,16 +224,6 @@ footer {
 
 .footer-section ul li {
     margin: 8px 0;
-}
-
-.footer-section ul li a {
-    color: white;
-    text-decoration: none;
-}
-
-.footer-section ul li a:hover {
-    text-decoration: underline;
-    color: #ff8c00;
 }
 
 .social-icons {
@@ -255,4 +247,40 @@ footer {
     border-top: 1px solid #ff8c00;
     padding-top: 10px;
     font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    header {
+        padding: 15px 20px;
+        flex-direction: column;
+    }
+    
+    nav ul {
+        margin: 15px 0;
+    }
+    
+    .hero {
+        height: 400px;
+    }
+    
+    .benefits {
+        margin-left: 20px;
+        margin-right: 20px;
+        top: 150px;
+        padding: 30px;
+    }
+    
+    .container {
+        margin-top: 200px;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+    
+    .form-group label,
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        flex: 100%;
+    }
 }

@@ -236,7 +236,7 @@ require_once './config.php';
           </div>
         </div>
 
-        <a href="/formulaires/avis.php"
+        <a href="/public/formulaires/avis.php"
           ><button class="btn-avis">LAISSEZ VOTRE AVIS</button></a
         >
       </section>

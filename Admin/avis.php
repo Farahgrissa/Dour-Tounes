@@ -1,33 +1,50 @@
 <?php
-
 require_once '../config.php';
+session_start();
 
-if (!isset($_GET['client_id'])) {
-    die('Le paramètre client_id est manquant.');
-}
-
-$client_id = (int)$_GET['client_id'];
-
-// Suppression avis
+// Gestion suppression d'un avis
 if (isset($_POST['delete_avis'])) {
-    $db->prepare("DELETE FROM avis WHERE id = ?")->execute([$_POST['avis_id']]);
-    $_SESSION['feedback'] = "Avis supprimé";
+    if (isset($_POST['avis_id'])) {
+        $stmt = $pdo->prepare("DELETE FROM avis WHERE id = ?");
+        $stmt->execute([$_POST['avis_id']]);
+        $_SESSION['feedback'] = "Avis supprimé avec succès.";
+    }
 }
 
-$avis = $db->prepare("
-    SELECT * 
-    FROM avis
-    WHERE client_id = ?
-")->execute([$client_id])->fetchAll();
+// Vérifier si un client_id est fourni
+if (isset($_GET['client_id'])) {
+    $client_id = (int)$_GET['client_id'];
 
-$client = $db->prepare("SELECT nom FROM clients WHERE id = ?")->execute([$client_id])->fetch();
+    // Récupérer les avis spécifiques à ce client
+    $stmt = $pdo->prepare("SELECT * FROM avis WHERE client_id = ?");
+    $stmt->execute([$client_id]);
+    $avis = $stmt->fetchAll();
+
+    // Récupérer les informations du client
+    $stmt = $pdo->prepare("SELECT nom FROM clients WHERE id = ?");
+    $stmt->execute([$client_id]);
+    $client = $stmt->fetch();
+
+    $client_name = $client ? htmlspecialchars($client['nom']) : "Client inconnu";
+} else {
+    // Récupérer tous les avis si aucun client_id n'est spécifié
+    $stmt = $pdo->query("SELECT * FROM avis");
+    $avis = $stmt->fetchAll();
+    $client_name = "Tous les clients";
+}
 
 include 'header.php';
 ?>
 
-<h2>Avis de <?= htmlspecialchars($client['nom']) ?></h2>
+<link rel="stylesheet" href="admin.css">
+<h2>Avis de <?= $client_name ?></h2>
 
-<table>
+<?php if (isset($_SESSION['feedback'])): ?>
+    <p class="success"><?= $_SESSION['feedback'] ?></p>
+    <?php unset($_SESSION['feedback']); ?>
+<?php endif; ?>
+
+<table border="1" cellpadding="8" cellspacing="0">
     <tr>
         <th>Note</th>
         <th>Commentaire</th>
@@ -36,14 +53,13 @@ include 'header.php';
     </tr>
     <?php foreach ($avis as $a): ?>
     <tr>
-        <td><?= str_repeat('★', $a['note']) ?></td>
+        <td><?= str_repeat('★', (int)$a['note']) ?></td>
         <td><?= htmlspecialchars($a['commentaire']) ?></td>
-        <td><?= $a['date_creation'] ?></td>
+        <td><?= $a['date'] ?? '-' ?></td>
         <td>
-            <form method="post" onsubmit="return confirm('Supprimer cet avis ?')">
+            <form method="post" onsubmit="return confirm('Supprimer cet avis ?');">
                 <input type="hidden" name="avis_id" value="<?= $a['id'] ?>">
-                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                <button type="submit" name="delete_avis">🗑️</button>
+                <button type="submit" name="delete_avis">🗑️ Supprimer</button>
             </form>
         </td>
     </tr>

@@ -1,12 +1,4 @@
-<?php
-// Vérifier si l'utilisateur est connecté en tant qu'administrateur
-session_start();
-if (!isset($_SESSION['admin_id'])) {
-    header('Location: ../../public/connexion.php');
-    exit();
-}
-?>
-<!-- header.php -->
+
 <header>
     <div class="header-container">
         <div class="logo">
@@ -19,8 +11,9 @@ if (!isset($_SESSION['admin_id'])) {
                 <li><a href="gerer_guides.php">Gérer les guides</a></li> 
                 <li><a href="gerer_clients.php">Gérer les Clients</a></li> 
                 <li><a href="avis.php">Gérer les Avis</a></li>
-                <li><a href="deconexion.php">Se déconnecter</a></li>
+                <li><a href="index.php?logout=true">Se déconnecter</a></li>
             </ul>
         </nav>
     </div>
 </header>
+

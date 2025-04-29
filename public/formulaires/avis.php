@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <header class="publication-header">
         <h1>Dour Tounes</h1>
         <div class="user-profile">
-            <span class="username"><?= htmlspecialchars($_SESSION['nom_utilisateur'] ?? 'Utilisateur') ?></span>
+            <span class="username"><?= htmlspecialchars($_SESSION['nom'] ?? 'Utilisateur') ?></span>
             <i class="fas fa-user-circle"></i>
         </div>
     </header>

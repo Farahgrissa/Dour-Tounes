@@ -7,24 +7,31 @@ if (!isset($_SESSION['admin_id'])) {
     header('Location: ../public/connexion.php');
     exit();
 }
-
-// Si l'administrateur se déconnecte
-if (isset($_GET['logout'])) {
+if (isset($_GET['logout']) && $_GET['logout'] == 'true') {
+    session_unset();
     session_destroy();
-    header('Location: ../public/connexion.php');
-    exit();
+    header('Location: ../index.php');
+    exit(); 
 }
-
-// Inclure le header
 include('header.php');
 ?>
 
-<section>
-    <h2>Bienvenue, Administrateur</h2>
-    <p>Vous pouvez gérer les clients et les guides à partir des liens ci-dessus.</p>
-</section>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord - Admin</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <section>
+        <h2>Bienvenue, Administrateur</h2>
+        <p>Vous pouvez gérer les clients et les guides à partir des liens ci-dessus.</p>
+    </section>
 
 <?php
-// Inclure le footer
 include('footer.php');
 ?>
+</body>
+</html>

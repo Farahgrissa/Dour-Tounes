@@ -84,12 +84,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Si aucune erreur, procéder à l'insertion
     if (empty($errors)) {
-        // Ajouter ici la logique d'insertion en base de données si nécessaire
-        header('Location: traitement_inscription.php');
+        // Préparer la requête d'insertion
+        $stmt = $pdo->prepare(
+            "INSERT INTO clients (civilite, prenom, nom, email, telephone, destination, date_arrivee, date_depart, interets, langue1, langue2, besoins, newsletter, password, conditions)
+            VALUES (:civilite, :prenom, :nom, :email, :telephone, :destination, :date_arrivee, :date_depart, :interets, :langue1, :langue2, :besoins, :newsletter, :password, :conditions)"
+        );
+
+        // Crypter le mot de passe avant l'insertion
+        $passwordHash = password_hash($formData['password'], PASSWORD_BCRYPT);
+
+        // Exécuter la requête avec les valeurs du formulaire
+        $stmt->execute([
+            ':civilite' => $formData['civilite'],
+            ':prenom' => $formData['prenom'],
+            ':nom' => $formData['nom'],
+            ':email' => $formData['email'],
+            ':telephone' => $formData['telephone'],
+            ':destination' => $formData['destination'],
+            ':date_arrivee' => $formData['date_arrivee'],
+            ':date_depart' => $formData['date_depart'],
+            ':interets' => implode(',', $formData['interets']),
+            ':langue1' => $formData['langue1'],
+            ':langue2' => $formData['langue2'],
+            ':besoins' => $formData['besoins'],
+            ':newsletter' => $formData['newsletter'],
+            ':password' => $passwordHash,
+            ':conditions' => $formData['conditions']
+        ]);
+
+        // Redirection après l'inscription
+        header('Location: confirmation.php'); // Remplace par la page que tu veux afficher après inscription
         exit();
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -262,5 +291,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </form>
     </div>
+    
+
+
+
+<footer>
+    <div class="footer-container">
+        <div class="footer-section about">
+            <h2>Dour Tounes</h2>
+            <p>Rejoignez notre plateforme et attirez plus de voyageurs en quelques minutes. Partagez votre passion et faites découvrir la Tunisie.</p>
+        </div>
+
+        <div class="footer-section links">
+            <h3>Liens utiles</h3>
+            <ul>
+                <li><a href="/dourtounes/index.php">Accueil</a></li>
+                <li><a href="#">À propos</a></li>
+                <li><a href="#">Nos guides</a></li>
+                <li><a href="#">Avis</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-section contact">
+            <h3>Contact</h3>
+            <p>Email : <a href="mailto:contact@dour_tounes.tn">contact@dour_tounes.tn</a></p>
+            <p>Téléphone : +33 1 23 45 67 89</p>
+            <p>Adresse : 123, Rue des Voyages, Tunis, Tunis</p>
+        </div>
+
+        <div class="footer-section social">
+            <h3>Suivez-nous</h3>
+            <div class="social-icons">
+                <a href="#"><img src="../images/logos/fb.webp" alt="Facebook"></a>
+                <a href="#"><img src="../images/logos/mail.png" alt="email"></a>
+                <a href="#"><img src="../images/logos/insta.jpeg" alt="Instagram"></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; 2025 Dour Tounes | Tous droits réservés.</p>
+    </div>
+</footer>
 </body>
 </html>

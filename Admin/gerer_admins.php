@@ -5,7 +5,7 @@ require_once('../config.php');
 // Vérifier si l'administrateur est connecté
 session_start();
 if (!isset($_SESSION['admin_id'])) {
-    header('Location: login.php'); // Rediriger vers la page de connexion si non connecté
+    header('Location: login.php');
     exit;
 }
 
@@ -13,63 +13,63 @@ if (!isset($_SESSION['admin_id'])) {
 $error = '';
 $success = '';
 
-// Gestion de l'ajout d'un administrateur
+// Ajout d'un administrateur
 if (isset($_POST['add_admin'])) {
-    // Récupérer les données du formulaire d'ajout
-    $nom = $_POST['nom'];
-    $email = $_POST['email'];
-    $password = password_hash($_POST['password'], PASSWORD_BCRYPT); // Sécuriser le mot de passe
+    $nom = htmlspecialchars(trim($_POST['nom']));
+    $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
+    $password = trim($_POST['password']);
 
-    // Insérer le nouvel administrateur dans la base de données
-    $query = "INSERT INTO admins (nom, email, password) VALUES ('$nom', '$email', '$password')";
-    if ($conn->query($query) === TRUE) {
-        $success = 'Administrateur ajouté avec succès.';
+    if ($email && $password) {
+        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+
+        $stmt = $pdo->prepare("INSERT INTO admins (nom, email, password) VALUES (?, ?, ?)");
+        if ($stmt->execute([$nom, $email, $hashedPassword])) {
+            $success = 'Administrateur ajouté avec succès.';
+        } else {
+            $error = 'Erreur SQL : ' . implode(", ", $stmt->errorInfo());
+        }
     } else {
-        $error = 'Erreur lors de l\'ajout de l\'administrateur.';
+        $error = 'Données invalides.';
     }
 }
 
-// Gestion de la mise à jour d'un administrateur
+// Mise à jour d'un administrateur
 if (isset($_POST['update_admin'])) {
-    // Récupérer les données du formulaire de modification
     $id = $_POST['id'];
     $nom = $_POST['nom'];
     $email = $_POST['email'];
 
-    // Mettre à jour les informations de l'administrateur
-    $query = "UPDATE admins SET nom = '$nom', email = '$email' WHERE id = '$id'";
-    if ($conn->query($query) === TRUE) {
+    $stmt = $pdo->prepare("UPDATE admins SET nom = ?, email = ? WHERE id = ?");
+    if ($stmt->execute([$nom, $email, $id])) {
         $success = 'Administrateur mis à jour avec succès.';
     } else {
-        $error = 'Erreur lors de la mise à jour de l\'administrateur.';
+        $error = 'Erreur lors de la mise à jour.';
     }
 }
 
-// Gestion de la suppression d'un administrateur
+// Suppression d'un administrateur
 if (isset($_GET['delete_id'])) {
     $id = $_GET['delete_id'];
 
-    // Supprimer l'administrateur de la base de données
-    $query = "DELETE FROM admins WHERE id = '$id'";
-    if ($conn->query($query) === TRUE) {
+    $stmt = $pdo->prepare("DELETE FROM admins WHERE id = ?");
+    if ($stmt->execute([$id])) {
         $success = 'Administrateur supprimé avec succès.';
     } else {
-        $error = 'Erreur lors de la suppression de l\'administrateur.';
+        $error = 'Erreur lors de la suppression.';
     }
 }
 
-// Récupérer tous les administrateurs depuis la base de données
-$query = "SELECT * FROM admins";
-$result = $conn->query($query);
+// Récupérer tous les administrateurs
+$stmt = $pdo->query("SELECT * FROM admins");
+$admins = $stmt->fetchAll();
 ?>
 
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gérer les Administrateurs</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="admin.css">
 </head>
 <body>
 
@@ -78,15 +78,15 @@ $result = $conn->query($query);
     <div class="dashboard-container">
         <h2>Gérer les Administrateurs</h2>
 
-        <!-- Affichage des messages de succès ou d'erreur -->
+        <!-- Messages -->
         <?php if ($error): ?>
-            <p class="error"><?= $error ?></p>
+            <p class="error"><?= htmlspecialchars($error) ?></p>
         <?php endif; ?>
         <?php if ($success): ?>
-            <p class="success"><?= $success ?></p>
+            <p class="success"><?= htmlspecialchars($success) ?></p>
         <?php endif; ?>
 
-        <!-- Formulaire d'ajout d'un administrateur -->
+        <!-- Formulaire d'ajout -->
         <h3>Ajouter un Administrateur</h3>
         <form action="gerer_admins.php" method="POST">
             <input type="text" name="nom" placeholder="Nom" required>
@@ -107,38 +107,36 @@ $result = $conn->query($query);
                 </tr>
             </thead>
             <tbody>
-                <?php while ($admin = $result->fetch_assoc()): ?>
-                <tr>
-                    <td><?= $admin['id'] ?></td>
-                    <td><?= $admin['nom'] ?></td>
-                    <td><?= $admin['email'] ?></td>
-                    <td>
-                        <a href="gerer_admins.php?edit_id=<?= $admin['id'] ?>" class="button">Modifier</a>
-                        <a href="gerer_admins.php?delete_id=<?= $admin['id'] ?>" class="button delete" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet administrateur ?');">Supprimer</a>
-                    </td>
-                </tr>
-                <?php endwhile; ?>
+                <?php foreach ($admins as $admin): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($admin['id']) ?></td>
+                        <td><?= htmlspecialchars($admin['nom']) ?></td>
+                        <td><?= htmlspecialchars($admin['email']) ?></td>
+                        <td>
+                            <a href="gerer_admins.php?edit_id=<?= $admin['id'] ?>" class="button">Modifier</a>
+                            <a href="gerer_admins.php?delete_id=<?= $admin['id'] ?>" class="button delete" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet administrateur ?');">Supprimer</a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
             </tbody>
         </table>
 
-        <!-- Formulaire de modification d'un administrateur -->
+        <!-- Formulaire de modification -->
         <?php if (isset($_GET['edit_id'])): ?>
             <?php
-            // Récupérer les informations de l'administrateur à modifier
             $edit_id = $_GET['edit_id'];
-            $query = "SELECT * FROM admins WHERE id = '$edit_id'";
-            $result_edit = $conn->query($query);
-            $admin_to_edit = $result_edit->fetch_assoc();
+            $stmt = $pdo->prepare("SELECT * FROM admins WHERE id = ?");
+            $stmt->execute([$edit_id]);
+            $admin_to_edit = $stmt->fetch();
             ?>
             <h3>Modifier un Administrateur</h3>
             <form action="gerer_admins.php" method="POST">
                 <input type="hidden" name="id" value="<?= $admin_to_edit['id'] ?>">
-                <input type="text" name="nom" placeholder="Nom" value="<?= $admin_to_edit['nom'] ?>" required>
-                <input type="email" name="email" placeholder="Adresse email" value="<?= $admin_to_edit['email'] ?>" required>
+                <input type="text" name="nom" value="<?= htmlspecialchars($admin_to_edit['nom']) ?>" required>
+                <input type="email" name="email" value="<?= htmlspecialchars($admin_to_edit['email']) ?>" required>
                 <button type="submit" name="update_admin">Mettre à jour</button>
             </form>
         <?php endif; ?>
-
     </div>
 
     <?php include('footer.php'); ?>
