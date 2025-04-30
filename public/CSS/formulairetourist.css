@@ -1,3 +1,104 @@
+/* Messages d'erreur */
+.error-message {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    animation: slideDown 0.3s ease;
+}
+
+.error {
+    border-color: #dc3545 !important;
+    background: #fff5f5;
+}
+
+/* Indicateur de force du mot de passe */
+.password-strength {
+    font-size: 0.9rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+}
+
+.strength-1 { background: #ffe3e3; color: #dc3545; }
+.strength-2 { background: #fff3cd; color: #856404; }
+.strength-3 { background: #d4edda; color: #155724; }
+.strength-4 { background: #cce5ff; color: #004085; }
+
+/* Message de succès */
+.success-message {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    animation: fadeIn 0.5s ease;
+}
+
+.success-message svg {
+    flex-shrink: 0;
+}
+
+/* Animation */
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Spinner de chargement */
+.spinner {
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 3px solid #fff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin: 5px 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.error {
+    border: 2px solid #dc3545 !important;
+    background: #fff5f5;
+}
+
+.password-strength {
+    font-size: 0.9rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
+/* Ajouter ce style supplémentaire */
+.form-group {
+    position: relative; /* Permet un positionnement correct des erreurs */
+    margin-bottom: 25px; /* Espace supplémentaire pour les messages */
+}
+
 /* Réinitialisation des styles */
 * {
     margin: 0;

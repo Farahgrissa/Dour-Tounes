@@ -236,7 +236,7 @@ require_once './config.php';
           </div>
         </div>
 
-        <a href="/public/formulaires/avis.php"
+        <a href="./public/formulaires/avis.php"
           ><button class="btn-avis">LAISSEZ VOTRE AVIS</button></a
         >
       </section>
@@ -299,5 +299,282 @@ require_once './config.php';
         <p>&copy; 2025 Dour Tounes | Tous droits réservés.</p>
       </div>
     </footer>
+    <script>
+      // Script principal pour la page d'accueil de Dour Tounes
+
+// Attendre que le DOM soit complètement chargé
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // ==== 1. Animation du header au défilement ====
+    const header = document.querySelector('header');
+    
+    window.addEventListener('scroll', function() {
+        if (window.scrollY > 100) {
+            header.style.background = 'rgba(255, 255, 255, 0.9)';
+            header.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+        } else {
+            header.style.background = 'transparent';
+            header.style.boxShadow = 'none';
+        }
+    });
+    
+    // ==== 2. Animation des cartes de destination ====
+    const destinations = document.querySelectorAll('.destination');
+    
+    destinations.forEach(destination => {
+        destination.addEventListener('mouseenter', function() {
+            // L'animation est déjà gérée en CSS avec transform, mais on peut ajouter des effets
+            this.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.2)';
+        });
+        
+        destination.addEventListener('mouseleave', function() {
+            this.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+        });
+    });
+    
+    // ==== 3. Animation pour les avis clients ====
+    const avisCards = document.querySelectorAll('.avis-card');
+    
+    avisCards.forEach(card => {
+        // Gérer le "Lire la suite" pour chaque avis
+        const readMoreLink = card.querySelector('.read-more');
+        const avisText = card.querySelector('.avis-text');
+        
+        // Stocker le texte original
+        const originalText = avisText.textContent;
+        const shortText = originalText.substring(0, 100) + (originalText.length > 100 ? '...' : '');
+        
+        // Initialiser avec le texte court
+        avisText.textContent = shortText;
+        
+        let expanded = false;
+        
+        readMoreLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (!expanded) {
+                avisText.textContent = originalText;
+                readMoreLink.textContent = 'Voir moins';
+                expanded = true;
+            } else {
+                avisText.textContent = shortText;
+                readMoreLink.textContent = 'Lire la suite';
+                expanded = false;
+            }
+        });
+    });
+    
+    // ==== 4. Carrousel d'images pour la section héro (si nécessaire) ====
+    // Tableau d'images pour le fond du héro
+    const heroBackgrounds = [
+        '../images/background.jpg',
+        '../images/pierre.jpg',
+        '../images/mer tunis.jpg',
+        '../images/nature.jpg'
+    ];
+    
+    let currentBgIndex = 0;
+    const heroSection = document.querySelector('.hero');
+    
+    // Fonction pour changer le fond d'écran
+    function changeHeroBackground() {
+        currentBgIndex = (currentBgIndex + 1) % heroBackgrounds.length;
+        heroSection.style.backgroundImage = `url(${heroBackgrounds[currentBgIndex]})`;
+    }
+    
+    // Changer l'image toutes les 5 secondes
+    setInterval(changeHeroBackground, 5000);
+    
+    // ==== 5. Animation des réseaux sociaux ====
+    const socialIcons = document.querySelectorAll('.reseaux-sociaux .icone');
+    
+    socialIcons.forEach(icon => {
+        icon.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.2)';
+        });
+        
+        icon.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+    
+    // ==== 6. Animation de la box Contact ====
+    const contactBox = document.querySelector('.contact-box');
+    
+    contactBox.addEventListener('mouseenter', function() {
+        this.style.transform = 'scale(1.05)';
+        this.style.transition = 'transform 0.3s ease-in-out';
+    });
+    
+    contactBox.addEventListener('mouseleave', function() {
+        this.style.transform = 'scale(1)';
+    });
+    
+    // ==== 7. Gestion de la vidéo YouTube ====
+    const videoIframe = document.querySelector('iframe');
+    
+    // Fonction pour gérer le lazy loading de la vidéo
+    const loadYoutubeVideo = function() {
+        // Vérifier si la vidéo est visible dans la fenêtre
+        const rect = videoIframe.getBoundingClientRect();
+        const isVisible = 
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <= (window.innerWidth || document.documentElement.clientWidth);
+        
+        if (isVisible) {
+            // Si la vidéo est visible, charger la vidéo
+            if (!videoIframe.src.includes('autoplay=1')) {
+                videoIframe.src += '&autoplay=0';
+            }
+            // Retirer l'écouteur d'événement une fois la vidéo chargée
+            window.removeEventListener('scroll', loadYoutubeVideo);
+        }
+    };
+    
+    // Ajouter l'écouteur d'événement pour le défilement
+    window.addEventListener('scroll', loadYoutubeVideo);
+    
+    // ==== 8. Validation du formulaire de contact (si ajouté plus tard) ====
+    const contactForm = document.querySelector('form');
+    
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            const emailInput = contactForm.querySelector('input[type="email"]');
+            if (emailInput && !validateEmail(emailInput.value)) {
+                e.preventDefault();
+                alert('Veuillez entrer une adresse email valide.');
+            }
+        });
+    }
+    
+    // Fonction de validation d'email
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(String(email).toLowerCase());
+    }
+    
+    // ==== 9. Compteur animé pour les statistiques ====
+    // Pour les chiffres dans la section image (196 destinations, 1148 guides)
+    function animateCounter(el, start, end, duration) {
+        let startTime = null;
+        
+        function animation(currentTime) {
+            if (startTime === null) startTime = currentTime;
+            const timeElapsed = currentTime - startTime;
+            const progress = Math.min(timeElapsed / duration, 1);
+            const value = Math.floor(progress * (end - start) + start);
+            
+            el.textContent = value;
+            
+            if (progress < 1) {
+                requestAnimationFrame(animation);
+            } else {
+                el.textContent = end;
+            }
+        }
+        
+        requestAnimationFrame(animation);
+    }
+    
+    // Observer pour déclencher l'animation lorsque les éléments sont visibles
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Récupérer les chiffres dans les div.overlay
+                const overlays = document.querySelectorAll('.image-box .overlay');
+                
+                overlays.forEach(overlay => {
+                    const text = overlay.textContent.trim();
+                    const number = parseInt(text);
+                    
+                    if (!isNaN(number)) {
+                        // Réinitialiser le texte pour préparer l'animation
+                        const originalHTML = overlay.innerHTML;
+                        overlay.innerHTML = originalHTML.replace(number, '0');
+                        
+                        // Animer le compteur
+                        animateCounter(
+                            overlay.childNodes[0], 
+                            0, 
+                            number, 
+                            2000 // durée de l'animation en ms
+                        );
+                    }
+                });
+                
+                // Arrêter d'observer après l'animation
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    // Observer la section contenant les statistiques
+    const imageSection = document.querySelector('.content .image-section');
+    if (imageSection) {
+        observer.observe(imageSection);
+    }
+    
+    // ==== 10. Mode nuit (bouton à ajouter dans le header si souhaité) ====
+    // Ajout d'un bouton de mode nuit dans le header
+    const modeNuitBtn = document.createElement('button');
+    modeNuitBtn.textContent = '🌙';
+    modeNuitBtn.classList.add('mode-nuit-btn');
+    modeNuitBtn.style.background = 'none';
+    modeNuitBtn.style.border = 'none';
+    modeNuitBtn.style.fontSize = '20px';
+    modeNuitBtn.style.cursor = 'pointer';
+    modeNuitBtn.style.marginLeft = '10px';
+    
+    const nav = document.querySelector('nav');
+    nav.parentNode.insertBefore(modeNuitBtn, nav.nextSibling);
+    
+    let modeNuit = false;
+    
+    modeNuitBtn.addEventListener('click', function() {
+        modeNuit = !modeNuit;
+        
+        if (modeNuit) {
+            document.body.style.background = '#1a1a2e';
+            document.body.style.color = '#e6e6e6';
+            modeNuitBtn.textContent = '☀️';
+            
+            // Changer les couleurs des sections
+            document.querySelectorAll('section').forEach(section => {
+                section.style.background = '#16213e';
+            });
+            
+            // Adapter les couleurs des textes
+            document.querySelectorAll('h1, h2, h3').forEach(heading => {
+                heading.style.color = '#ff9e00';
+            });
+            
+            document.querySelectorAll('p, li').forEach(text => {
+                text.style.color = '#d1d1d1';
+            });
+            
+        } else {
+            document.body.style.background = 'linear-gradient(to bottom, #e6f2ff, #ffffff)';
+            document.body.style.color = '#004080';
+            modeNuitBtn.textContent = '🌙';
+            
+            // Réinitialiser les couleurs des sections
+            document.querySelectorAll('section').forEach(section => {
+                section.style.background = '';
+            });
+            
+            // Réinitialiser les couleurs des textes
+            document.querySelectorAll('h1, h2, h3').forEach(heading => {
+                heading.style.color = '';
+            });
+            
+            document.querySelectorAll('p, li').forEach(text => {
+                text.style.color = '';
+            });
+        }
+    });
+});
+    </script>
   </body>
 </html>
