@@ -1,5 +1,29 @@
 <?php
 require_once '../../config.php'; 
+
+try {
+    // Test de la connexion
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->getAttribute(PDO::ATTR_CONNECTION_STATUS);
+} catch (PDOException $e) {
+    // Affiche l'erreur de connexion
+    echo "Connection failed: " . $e->getMessage();
+    exit();
+}
+
+function formatDateForInput($date) {
+    if (!$date) return '';
+    
+    // Si la date est déjà au bon format, la renvoyer telle quelle
+    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+        return $date;
+    }
+
+    // Sinon essayer de convertir jj/mm/aaaa en aaaa-mm-jj
+    $d = DateTime::createFromFormat('d/m/Y', $date);
+    return $d ? $d->format('Y-m-d') : '';
+}
+
 $errors = [];
 $formData = [
     'civilite' => '',
@@ -20,9 +44,7 @@ $formData = [
     'conditions' => 0
 ];
 
-// Gestion de la soumission du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Initialiser le tableau formData avec les données du formulaire
     $formData = [
         'civilite' => $_POST['civilite'] ?? '',
         'prenom' => $_POST['prenom'] ?? '',
@@ -51,8 +73,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['nom'] = "Le nom est requis.";
     }
 
+    if (empty($formData['telephone'])) {
+        $errors['telephone'] = "Le téléphone est requis.";
+    } elseif (!preg_match("/^(\+216|\+33|\+1)[0-9]{8,10}$/", $formData['telephone'])) {
+        $errors['telephone'] = "Le numéro de téléphone n'est pas valide.";
+    }
+
     if (!filter_var($formData['email'], FILTER_VALIDATE_EMAIL)) {
         $errors['email'] = "L'email n'est pas valide.";
+    } else {
+        // Vérification si l'email existe déjà dans la base de données
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM clients WHERE email = :email");
+        $stmt->execute([':email' => $formData['email']]);
+        $emailExists = $stmt->fetchColumn();
+
+        if ($emailExists) {
+            $errors['email'] = "L'email est déjà utilisé.";
+        }
     }
 
     if (empty($formData['civilite'])) {
@@ -63,17 +100,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['password'] = "Le mot de passe doit contenir au moins 6 caractères.";
     }
 
-    // Vérification de la confirmation du mot de passe
     if ($formData['password'] !== $formData['password_confirm']) {
         $errors['password_confirm'] = "Les mots de passe ne correspondent pas.";
     }
 
-    // Vérification de la case des conditions générales
     if (empty($formData['conditions'])) {
         $errors['conditions'] = "Vous devez accepter les conditions générales.";
     }
 
-    // Vérification des dates
     if (!empty($formData['date_arrivee']) && !empty($formData['date_depart'])) {
         $dateArrivee = strtotime($formData['date_arrivee']);
         $dateDepart = strtotime($formData['date_depart']);
@@ -82,18 +116,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Si aucune erreur, procéder à l'insertion
+    // Si aucune erreur n'est trouvée, insertion dans la base de données
     if (empty($errors)) {
         // Préparer la requête d'insertion
         $stmt = $pdo->prepare(
-            "INSERT INTO clients (civilite, prenom, nom, email, telephone, destination, date_arrivee, date_depart, interets, langue1, langue2, besoins, newsletter, password, conditions)
-            VALUES (:civilite, :prenom, :nom, :email, :telephone, :destination, :date_arrivee, :date_depart, :interets, :langue1, :langue2, :besoins, :newsletter, :password, :conditions)"
+            "INSERT INTO clients (civilite, prenom, nom, email, telephone, destination, date_arrivee, date_depart, interets, langue1, langue2, besoins, newsletter, password, conditions, date_inscription)
+            VALUES (:civilite, :prenom, :nom, :email, :telephone, :destination, :date_arrivee, :date_depart, :interets, :langue1, :langue2, :besoins, :newsletter, :password, :conditions, :date_inscription)"
         );
 
-        // Crypter le mot de passe avant l'insertion
+        // Hachage du mot de passe
         $passwordHash = password_hash($formData['password'], PASSWORD_BCRYPT);
 
-        // Exécuter la requête avec les valeurs du formulaire
+        // Exécution de la requête avec les données du formulaire
         $stmt->execute([
             ':civilite' => $formData['civilite'],
             ':prenom' => $formData['prenom'],
@@ -109,15 +143,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':besoins' => $formData['besoins'],
             ':newsletter' => $formData['newsletter'],
             ':password' => $passwordHash,
-            ':conditions' => $formData['conditions']
+            ':conditions' => $formData['conditions'],
+            ':date_inscription' => date('Y-m-d H:i:s')
         ]);
 
-        // Redirection après l'inscription
-        header('Location: confirmation.php'); // Remplace par la page que tu veux afficher après inscription
+        // Retourner une réponse JSON pour indiquer le succès
+        echo json_encode([
+            'success' => true,
+            'message' => 'Inscription réussie.'
+        ]);
+
+        // Redirection immédiate vers la page de connexion
+        header('Location: ../connexion.php');
+        exit();
+    } else {
+        // Si des erreurs sont présentes, les retourner sous forme de JSON
+        echo json_encode([
+            'success' => false,
+            'errors' => $errors
+        ]);
         exit();
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -176,166 +225,127 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <h2>Les champs marqués d'une <span style="color: red;">*</span> sont obligatoires</h2>
-        <form action="form_client.php" method="POST">
-            <div class="form-group">
-                <label for="civilite" class="required">Civilité</label>
-                <input type="radio" name="civilite" value="Mr." <?= $formData['civilite'] === 'Mr.' ? 'checked' : '' ?> required> Mr.
-                <input type="radio" name="civilite" value="Mme" <?= $formData['civilite'] === 'Mme' ? 'checked' : '' ?> required> Mme
-                <?php if (isset($errors['civilite'])): ?>
-                    <span class="error"><?= htmlspecialchars($errors['civilite']) ?></span>
-                <?php endif; ?>
-            </div>
-
-            <div class="form-group">
-                <label for="prenom" class="required">Prénom</label>
-                <input type="text" name="prenom" value="<?= htmlspecialchars($formData['prenom']) ?>" required>
-                <?php if (isset($errors['prenom'])): ?>
-                    <span class="error"><?= htmlspecialchars($errors['prenom']) ?></span>
-                <?php endif; ?>
-            </div>
-
-            <div class="form-group">
-                <label for="nom" class="required">Nom</label>
-                <input type="text" name="nom" value="<?= htmlspecialchars($formData['nom']) ?>" required>
-                <?php if (isset($errors['nom'])): ?>
-                    <span class="error"><?= htmlspecialchars($errors['nom']) ?></span>
-                <?php endif; ?>
-            </div>
-
-            <div class="form-group">
-                <label for="email" class="required">Email</label>
-                <input type="email" name="email" value="<?= htmlspecialchars($formData['email']) ?>" required>
-                <?php if (isset($errors['email'])): ?>
-                    <span class="error"><?= htmlspecialchars($errors['email']) ?></span>
-                <?php endif; ?>
-            </div>
-
-            <div class="form-group">
-                <label for="telephone">Téléphone</label>
-                <input type="tel" name="telephone" value="<?= htmlspecialchars($formData['telephone']) ?>" placeholder="Saisir indicatif du pays">
-            </div>
-
-            <div class="form-group">
-                <label for="destination">Destination souhaitée</label>
-                <select name="destination">
-                    <option value="">Choisir une destination</option>
-                    <option value="mer" <?= $formData['destination'] === 'mer' ? 'selected' : '' ?>>mer</option>
-                    <option value="nature" <?= $formData['destination'] === 'nature' ? 'selected' : '' ?>>nature</option>
-                    <option value="desert" <?= $formData['destination'] === 'desert' ? 'selected' : '' ?>>desert</option>
-                    <option value="monument" <?= $formData['destination'] === 'monument' ? 'selected' : '' ?>>monument</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="date_arrivee">Date d'arrivée prévue</label>
-                <input type="date" name="date_arrivee" value="<?= htmlspecialchars($formData['date_arrivee']) ?>">
-            </div>
-
-            <div class="form-group">
-                <label for="date_depart">Date de départ prévue</label>
-                <input type="date" name="date_depart" value="<?= htmlspecialchars($formData['date_depart']) ?>">
-            </div>
-
-            <div class="form-group">
-                <label for="interets">Centres d'intérêt</label>
-                <div class="checkbox-group">
-                    <input type="checkbox" name="interets[]" value="Plage" <?= in_array('Plage', $formData['interets']) ? 'checked' : '' ?>> Plage
-                    <input type="checkbox" name="interets[]" value="Culture" <?= in_array('Culture', $formData['interets']) ? 'checked' : '' ?>> Culture
-                    <input type="checkbox" name="interets[]" value="Gastronomie" <?= in_array('Gastronomie', $formData['interets']) ? 'checked' : '' ?>> Gastronomie
-                    <input type="checkbox" name="interets[]" value="Shopping" <?= in_array('Shopping', $formData['interets']) ? 'checked' : '' ?>> Shopping
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="langues">Langues parlées</label>
-                <input type="text" name="langue1" value="<?= htmlspecialchars($formData['langue1']) ?>" placeholder="Langue principale">
-                <input type="text" name="langue2" value="<?= htmlspecialchars($formData['langue2']) ?>" placeholder="Autre langue">
-            </div>
-
-            <div class="form-group">
-                <label for="besoins">Besoins spécifiques</label>
-                <textarea name="besoins" rows="3" placeholder="Mobilité réduite, allergies alimentaires, etc."><?= htmlspecialchars($formData['besoins']) ?></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="password" class="required">Créer un mot de passe</label>
-                <input type="password" name="password" required minlength="8">
-                <?php if (isset($errors['password'])): ?>
-                    <span class="error"><?= htmlspecialchars($errors['password']) ?></span>
-                <?php endif; ?>
-            </div>
-
-            <div class="form-group">
-                <label for="password_confirm" class="required">Confirmer le mot de passe</label>
-                <input type="password" name="password_confirm" required>
-                <?php if (isset($errors['password_confirm'])): ?>
-                    <span class="error"><?= htmlspecialchars($errors['password_confirm']) ?></span>
-                <?php endif; ?>
-            </div>
-
-            <div class="form-group">
-                <input type="checkbox" name="newsletter" <?= $formData['newsletter'] ? 'checked' : '' ?>> 
-                <label for="newsletter">Je souhaite recevoir la newsletter et des offres spéciales</label>
-            </div>
-
-            <div class="form-group">
-                <input type="checkbox" name="conditions" <?= empty($errors) ? '' : 'checked' ?> required> 
-                <label for="conditions" class="required">J'accepte les conditions générales d'utilisation</label>
-                <?php if (isset($errors['conditions'])): ?>
-                    <span class="error"><?= htmlspecialchars($errors['conditions']) ?></span>
-                <?php endif; ?>
-            </div>
-
-            <div class="form-group">
-                <button type="submit">S'inscrire</button>
-            </div>
-        </form>
+        <form action="" method="POST">
+    <div class="form-group">
+        <label for="civilite" class="required">Civilité</label>
+        <input type="radio" name="civilite" value="Mr." <?= $formData['civilite'] === 'Mr.' ? 'checked' : '' ?> required> Mr.
+        <input type="radio" name="civilite" value="Mme" <?= $formData['civilite'] === 'Mme' ? 'checked' : '' ?> required> Mme
+        <?php if (isset($errors['civilite'])): ?>
+            <span class="error"><?= htmlspecialchars($errors['civilite']) ?></span>
+        <?php endif; ?>
     </div>
-    
+
+    <div class="form-group">
+        <label for="prenom" class="required">Prénom</label>
+        <input type="text" name="prenom" value="<?= htmlspecialchars($formData['prenom']) ?>" required>
+        <?php if (isset($errors['prenom'])): ?>
+            <span class="error"><?= htmlspecialchars($errors['prenom']) ?></span>
+        <?php endif; ?>
+    </div>
+
+    <div class="form-group">
+        <label for="nom" class="required">Nom</label>
+        <input type="text" name="nom" value="<?= htmlspecialchars($formData['nom']) ?>" required>
+        <?php if (isset($errors['nom'])): ?>
+            <span class="error"><?= htmlspecialchars($errors['nom']) ?></span>
+        <?php endif; ?>
+    </div>
+
+    <div class="form-group">
+        <label for="email" class="required">Email</label>
+        <input type="email" name="email" value="<?= htmlspecialchars($formData['email']) ?>" required>
+        <?php if (isset($errors['email'])): ?>
+            <span class="error"><?= htmlspecialchars($errors['email']) ?></span>
+        <?php endif; ?>
+    </div>
+
+    <div class="form-group">
+        <label for="telephone">Téléphone</label>
+        <input type="tel" name="telephone" value="<?= htmlspecialchars($formData['telephone']) ?>" placeholder="Saisir indicatif du pays">
+    </div>
 
 
 
-<footer>
-    <div class="footer-container">
-        <div class="footer-section about">
-            <h2>Dour Tounes</h2>
-            <p>Rejoignez notre plateforme et attirez plus de voyageurs en quelques minutes. Partagez votre passion et faites découvrir la Tunisie.</p>
-        </div>
+    <div class="form-group">
+        <label for="destination">Destination souhaitée</label>
+        <select name="destination">
+            <option value="">Choisir une destination</option>
+            <option value="mer" <?= $formData['destination'] === 'mer' ? 'selected' : '' ?>>mer</option>
+            <option value="nature" <?= $formData['destination'] === 'nature' ? 'selected' : '' ?>>nature</option>
+            <option value="desert" <?= $formData['destination'] === 'desert' ? 'selected' : '' ?>>desert</option>
+            <option value="monument" <?= $formData['destination'] === 'monument' ? 'selected' : '' ?>>monument</option>
+        </select>
+    </div>
 
-        <div class="footer-section links">
-            <h3>Liens utiles</h3>
-            <ul>
-                <li><a href="/dourtounes/index.php">Accueil</a></li>
-                <li><a href="#">À propos</a></li>
-                <li><a href="#">Nos guides</a></li>
-                <li><a href="#">Avis</a></li>
-                <li><a href="#">Contact</a></li>
-            </ul>
-        </div>
+    <div class="form-group">
+        <label for="date_arrivee">Date d'arrivée prévue</label>
+        <input type="date" name="date_arrivee" value="<?= htmlspecialchars(formatDateForInput($formData['date_arrivee'] ?? '')) ?>">
 
-        <div class="footer-section contact">
-            <h3>Contact</h3>
-            <p>Email : <a href="mailto:contact@dour_tounes.tn">contact@dour_tounes.tn</a></p>
-            <p>Téléphone : +33 1 23 45 67 89</p>
-            <p>Adresse : 123, Rue des Voyages, Tunis, Tunis</p>
-        </div>
+    </div>
 
-        <div class="footer-section social">
-            <h3>Suivez-nous</h3>
-            <div class="social-icons">
-                <a href="#"><img src="../images/logos/fb.webp" alt="Facebook"></a>
-                <a href="#"><img src="../images/logos/mail.png" alt="email"></a>
-                <a href="#"><img src="../images/logos/insta.jpeg" alt="Instagram"></a>
-            </div>
+    <div class="form-group">
+        <label for="date_depart">Date de départ prévue</label>
+        <input type="date" name="date_depart" value="<?= htmlspecialchars(formatDateForInput($formData['date_depart'] ?? '')) ?>">
+    </div>
+
+    <div class="form-group">
+        <label for="interets">Centres d'intérêt</label>
+        <div class="checkbox-group">
+            <input type="checkbox" name="interets[]" value="Plage" <?= in_array('Plage', $formData['interets']) ? 'checked' : '' ?>> Plage
+            <input type="checkbox" name="interets[]" value="Culture" <?= in_array('Culture', $formData['interets']) ? 'checked' : '' ?>> Culture
+            <input type="checkbox" name="interets[]" value="Gastronomie" <?= in_array('Gastronomie', $formData['interets']) ? 'checked' : '' ?>> Gastronomie
+            <input type="checkbox" name="interets[]" value="Shopping" <?= in_array('Shopping', $formData['interets']) ? 'checked' : '' ?>> Shopping
         </div>
     </div>
 
-    <div class="footer-bottom">
-        <p>&copy; 2025 Dour Tounes | Tous droits réservés.</p>
+    <div class="form-group">
+        <label for="langues">Langues parlées</label>
+        <input type="text" name="langue1" value="<?= htmlspecialchars($formData['langue1']) ?>" placeholder="Langue principale">
+        <input type="text" name="langue2" value="<?= htmlspecialchars($formData['langue2']) ?>" placeholder="Autre langue">
     </div>
-</footer>
-<script>
-        // Classe principale de validation du formulaire
+
+    <div class="form-group">
+        <label for="besoins">Besoins spécifiques</label>
+        <textarea name="besoins" rows="3" placeholder="Mobilité réduite, allergies alimentaires, etc."><?= htmlspecialchars($formData['besoins']) ?></textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="password" class="required">Créer un mot de passe</label>
+        <input type="password" name="password" required minlength="8">
+        <?php if (isset($errors['password'])): ?>
+            <span class="error"><?= htmlspecialchars($errors['password']) ?></span>
+        <?php endif; ?>
+    </div>
+
+    <div class="form-group">
+        <label for="password_confirm" class="required">Confirmer le mot de passe</label>
+        <input type="password" name="password_confirm" required>
+        <?php if (isset($errors['password_confirm'])): ?>
+            <span class="error"><?= htmlspecialchars($errors['password_confirm']) ?></span>
+        <?php endif; ?>
+    </div>
+
+    <div class="form-group">
+        <input type="checkbox" name="newsletter" <?= $formData['newsletter'] ? 'checked' : '' ?>> 
+        <label for="newsletter">Je souhaite recevoir la newsletter et des offres spéciales</label>
+    </div>
+
+    <div class="form-group">
+        <input type="checkbox" name="conditions" <?= empty($errors) ? '' : 'checked' ?> required> 
+        <label for="conditions" class="required">J'accepte les conditions générales d'utilisation</label>
+        <?php if (isset($errors['conditions'])): ?>
+            <span class="error"><?= htmlspecialchars($errors['conditions']) ?></span>
+        <?php endif; ?>
+    </div>
+
+    <div class="form-group">
+        <button type="submit">S'inscrire</button>
+    </div>
+</form>
+
+    </div>
+    <script>
+      // Classe principale de validation du formulaire
 class FormValidator {
     constructor(formSelector) {
         // Sélectionne le formulaire par son sélecteur (peut être une classe ou un ID)
@@ -434,31 +444,31 @@ class FormValidator {
         }
         return true;
     }
+    document.getElementById("myForm").addEventListener("submit", function(e) {
+    e.preventDefault();  // Empêche la soumission immédiate pour traitement
 
-    // Formate le numéro de téléphone pendant la saisie
-    formatPhoneNumber(input) {
-        // Garde uniquement les chiffres
-        const numbers = input.value.replace(/\D/g, '');
-        
-        // Ajoute des caractères de formatage selon la position
-        if (numbers.length > 3) {
-            // Si c'est un numéro international (avec plus de chiffres)
-            input.value = '+' + numbers;
-        } else {
-            input.value = numbers;
-        }
+    let phoneInput = document.getElementById("telephone").value;
+
+    // Supprimer tous les caractères non numériques sauf le +
+    let formattedPhone = phoneInput.replace(/\D/g, '');
+
+    // Ajouter l'indicatif +216 si le numéro est pour la Tunisie
+    if (formattedPhone.length === 8) {
+        formattedPhone = '+216' + formattedPhone; // Si c'est un numéro local à 8 chiffres
     }
 
-    // Valide le numéro de téléphone
-    validatePhoneNumber(input) {
-        // Autorise les numéros internationaux avec ou sans indicatif
-        const phoneRegex = /^(?:\+?\d{1,4}[\s-]?)?(?:\(\d{1,5}\)[\s-]?)?\d{6,}$/;
-        if (input.value && !phoneRegex.test(input.value)) {
-            this.showError(input, 'Format invalide (ex: +216 12 345 678)');
-            return false;
-        }
-        return true;
+    // Vérifier que le numéro de téléphone a bien un format international valide
+    if (!/^\+216\d{8}$/.test(formattedPhone)) {
+        alert("Le numéro de téléphone n'est pas valide.");
+        return;
     }
+
+    // Remplacer la valeur du champ téléphone avec le numéro formaté
+    document.getElementById("telephone").value = formattedPhone;
+
+    // Soumettre le formulaire après validation
+    this.submit();
+});
 
     // Vérifie que la date de départ est après la date d'arrivée
     validateDateRange(startDate, endDate) {

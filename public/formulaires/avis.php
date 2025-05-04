@@ -2,7 +2,7 @@
 session_start();
 require_once '../../config.php'; 
 
-// Vérifie si l'utilisateur est connecté
+// Vérifie si l'utilisateur est connecté, sinon le redirige vers la page de connexion
 if (!isset($_SESSION['client_id'])) {
     header('Location: ../connexion.php');
     exit();
@@ -34,6 +34,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Dour Tounes - Nouvelle Publication</title>
     <link rel="stylesheet" href="../CSS/avis.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script>
+        // Validation côté client pour le commentaire
+        function validateForm() {
+            const commentaire = document.querySelector('textarea[name="commentaire"]').value;
+            if (commentaire.trim() === "") {
+                alert("Veuillez entrer un commentaire.");
+                return false;
+            }
+            return true;
+        }
+    </script>
 </head>
 <body>
 <div class="publication-container">
@@ -50,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p style="color: <?= strpos($message, 'succès') ? 'green' : 'red' ?>"><?= $message ?></p>
         <?php endif; ?>
 
-        <form class="publication-form" method="POST">
+        <form class="publication-form" method="POST" onsubmit="return validateForm()">
             <div>
                 <label>Note :</label>
                 <select name="note" required>
@@ -81,13 +92,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </body>
 </html>
 
-
-<script>let currentYear = new Date().getFullYear();
-    for (let year = currentYear; year >= 2000; year--) {
-                       document.write(`<option value="${year}">${year}</option>`);
-                                }
-    
-    // Exemple de dynamisation du nom d'utilisateur
-    document.querySelector('.username').textContent = "Utilisateur Connecté";</script>
-</body>
-</html>

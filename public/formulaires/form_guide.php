@@ -1,25 +1,27 @@
 <?php
+session_start(); // Démarrer la session pour stocker les messages
+
 require_once '../../config.php';
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // Affiche les erreurs SQL
 
 $errors = [];
+$confirmation = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Récupération des données
-    $civilite = $_POST['civilite'];
-    $prenom = $_POST['prenom'];
-    $nom = $_POST['nom'];
-    $email = $_POST['email'];
+    // Récupération des données du formulaire
+    $civilite = $_POST['civilite'] ?? '';
+    $prenom = $_POST['prenom'] ?? '';
+    $nom = $_POST['nom'] ?? '';
+    $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
     $password_confirm = $_POST['password_confirm'] ?? '';
-
-    $langue_maternelle = $_POST['langue_maternelle'];
-    $telephone = $_POST['telephone'] ?? null;
-    $region = $_POST['region'] ?? null;
-    $langue1 = $_POST['langue1'];
-    $langue2 = $_POST['langue2'] ?? null;
-    $presentation = $_POST['presentation'];
-    $message = $_POST['message'] ?? null;
-    $date_inscription = date('Y-m-d H:i:s');
+    $langue_maternelle = $_POST['langue_maternelle'] ?? '';
+    $telephone = $_POST['telephone'] ?? '';
+    $region = $_POST['region'] ?? '';
+    $langue1 = $_POST['langue1'] ?? '';
+    $langue2 = $_POST['langue2'] ?? '';
+    $presentation = $_POST['presentation'] ?? '';
+    $message = $_POST['message'] ?? '';
 
     // Validation des mots de passe
     if (strlen($password) < 8) {
@@ -29,38 +31,102 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['password_confirm'] = "Les mots de passe ne correspondent pas.";
     }
 
-    // Si aucune erreur
+    // Vérification si l'email existe déjà
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM guides WHERE email = ?");
+    $stmt->execute([$email]);
+    $emailExists = $stmt->fetchColumn();
+
+    if ($emailExists) {
+        $errors['email'] = "Cet email est déjà utilisé.";
+    }
+
+    // Validation du numéro de téléphone (format international)
+    if (empty($telephone)) {
+        $errors['telephone'] = "Le téléphone est requis.";
+    } elseif (!preg_match("/^\+(216|33|1)[0-9]{8,10}$/", $telephone)) {
+        $errors['telephone'] = "Le numéro de téléphone doit être au format international (ex : +216XXXXXXXX).";
+    }
+
+    // Traitement si aucune erreur
     if (empty($errors)) {
-        // Hachage du mot de passe
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-        // Upload des fichiers
-        $photo = $_FILES['photo'];
-        $cartePro = $_FILES['carte_pro'];
-
+        // Gestion des fichiers
         $targetDir = "uploads/";
         if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
 
-        $photoPath = $targetDir . basename($photo["name"]);
-        $cartePath = $targetDir . basename($cartePro["name"]);
+        $photo = $_FILES['photo'] ?? null;
+        $cartePro = $_FILES['carte_pro'] ?? null;
 
-        move_uploaded_file($photo["tmp_name"], $photoPath);
-        move_uploaded_file($cartePro["tmp_name"], $cartePath);
+        $photoRelPath = $carteRelPath = "";
 
-        // Insertion dans la base de données
-        $stmt = $pdo->prepare("INSERT INTO guides 
-            (civilite, prenom, nom, email, password, langue_maternelle, telephone, region, langue1, langue2, presentation, photo, carte_pro, message, date_inscription) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)");
-        $stmt->execute([
-            $civilite, $prenom, $nom, $email, $hashedPassword,
-            $langue_maternelle, $telephone, $region,
-            $langue1, $langue2, $presentation, $photoPath, $cartePath, $message,$date_inscription
-        ]);
+        // Upload de la photo
+        if ($photo && $photo['error'] === 0) {
+            $photoRelPath = $targetDir . basename($photo["name"]);
+            move_uploaded_file($photo["tmp_name"], $photoRelPath);
+        } else {
+            $errors['photo'] = "Erreur lors de l'upload de la photo.";
+        }
 
-        $confirmation = "Inscription réussie ! Merci pour votre confiance.";
+        // Upload de la carte professionnelle
+        if ($cartePro && $cartePro['error'] === 0) {
+            $carteRelPath = $targetDir . basename($cartePro["name"]);
+            move_uploaded_file($cartePro["tmp_name"], $carteRelPath);
+        } else {
+            $errors['carte_pro'] = "Erreur lors de l'upload de la carte professionnelle.";
+        }
+
+        // Remplacer les valeurs vides par NULL
+        $telephone = empty($telephone) ? NULL : $telephone;
+        $region = empty($region) ? NULL : $region;
+        $langue2 = empty($langue2) ? NULL : $langue2;
+        $message = empty($message) ? NULL : $message;
+
+        // Insertion en base de données si tout est OK
+        if (empty($errors)) {
+            try {
+                $stmt = $pdo->prepare("INSERT INTO guides 
+                (civilite, prenom, nom, email, password, langue_maternelle, telephone, region, langue1, langue2, presentation, photo, carte_pro, message) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+                $stmt->execute([
+                    $civilite, $prenom, $nom, $email, $hashedPassword,
+                    $langue_maternelle, $telephone, $region,
+                    $langue1, $langue2, $presentation, $photoRelPath, $carteRelPath, $message
+                ]);
+
+                // Message de confirmation
+                $_SESSION['confirmation'] = "Inscription réussie ! Merci pour votre confiance.";
+                header("Location: ../connexion.php");
+                exit;
+            } catch (PDOException $e) {
+                $_SESSION['errors'][] = "Erreur SQL : " . $e->getMessage();
+            }
+        }
     }
+
+
+}
+
+?>
+
+<!-- Redirection vers la page d'inscription ou affichage des erreurs -->
+<?php
+if (isset($_SESSION['errors'])) {
+    foreach ($_SESSION['errors'] as $error) {
+        echo "<p style='color:red;'>$error</p>";
+    }
+    unset($_SESSION['errors']); // Supprime les erreurs après affichage
+}
+
+if (isset($_SESSION['confirmation'])) {
+    echo "<p style='color:green;'>".$_SESSION['confirmation']."</p>";
+    unset($_SESSION['confirmation']); // Supprime le message de confirmation après affichage
 }
 ?>
+
+
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -118,116 +184,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </section>
     <br>
     <br><br><br><br> <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-
-<<<<<<< HEAD
-<div class="container">
-<div class="container">
+    <div class="container">
     <h2>Les champs marqués d'une <span style="color: red;">*</span> sont obligatoires</h2>
 
     <?php if (isset($confirmation)) : ?>
         <p style="color: green; font-weight: bold;"><?= htmlspecialchars($confirmation) ?></p>
     <?php endif; ?>
 
-    <form action="../connexion.php" method="POST" enctype="multipart/form-data">
-
-=======
-    <div class="container">
-        <h2>Les champs marqués d'une <span style="color: red;">*</span> sont obligatoires</h2>
-
-<<<<<<< HEAD:public/formulaires/form_guide.php
-    <form action="connexion.php" method="POST">
->>>>>>> 486efc290e755ce9730c99732efb6de6d7071a90
-        
+    <form action="" method="POST" enctype="multipart/form-data">
         <div class="form-group">
             <label for="civilite" class="required">Civilité</label>
-=======
-        <form action="submit.php" method="POST">
->>>>>>> 9d60e60 (Sauvegarde temporaire avant pull):HTML/formulaireguide.html
-            
-            <div class="form-group">
-                <label for="civilite" class="required">Civilité</label>
-                
-                <input type="radio" name="civilite" value="Mr." required> Mr.
-                <input type="radio" name="civilite" value="Mme" required> Mme
-                
-            </div>
-
-            <div class="form-group">
-                <label for="prenom" class="required">Prénom</label>
-                <input type="text" name="prenom" required>
-            </div>
-
-            <div class="form-group">
-                <label for="nom" class="required">Nom</label>
-                <input type="text" name="nom" required>
-            </div>
-
-            <div class="form-group">
-                <label for="email" class="required">Email de contact pour les touristes</label>
-                <input type="email" name="email" required>
-            </div>
-
-            <div class="form-group">
-                <label for="pays" class="required">Pays où vous êtes guide</label>
-                <select name="pays" required>
-                    <option value="">Veuillez choisir une option</option>
-                    <option value="France">France</option>
-                    <option value="Maroc">Maroc</option>
-                    <option value="Italie">Italie</option>
-                
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="langue_maternelle" class="required">Langue maternelle</label>
-                <input type="text" name="langue_maternelle" required>
-            </div>
-
-            <div class="form-group">
-                <label for="telephone">N° téléphone de contact</label>
-                <input type="tel" name="telephone" placeholder="Saisir indicatif du pays">
-            </div>
-
-            <div class="form-group">
-                <label for="region">Région ou ville de vos visites</label>
-                <input type="text" name="region">
-            </div>
-
-            <div class="form-group">
-                <label for="langue" class="required">Langues de visite</label>
-                <input type="text" name="langue1" required placeholder="Saisir au moins une langue de visite .">
-                <input type="text" name="langue2" placeholder="Langue #2">
-                <input type="text" name="langue3" placeholder="Langue #3">
-                <input type="text" name="langue4" placeholder="Langue #4">
-                <input type="text" name="langue5" placeholder="Langue #5">
-            </div>
-            <div class="form-file" >
-                <label for="presentation" class="required">Presentation</label>
-                <textarea name="presentation" rows="4" minlength="350" placeholder="Ecrire quelques lignes de présentation qui apparaitront sur votre page dédiée" required></textarea>
-            </div>
-            <br>
-            <br>
-            <div class="form-file" >
-                <label for="photo" class="required">Envoyer-nous une photo du guide </label>
-                <input type="file" name="photo" required >
-            </div>
-            <br>
-            <br>
-            <div class="form-file">
-                <label for="carte_pro" class="required">Envoyez votre carte professionnelle de guide </label>
-                <input type="file" id="carte_pro" accept="image/*,application/pdf" required>
-            </div>
-            <br>
-            <br>
-            <div class="form-file">
-                <label for="message">Message à notre attention</label>
-                <textarea id="message" placeholder="Vous pouvez saisir ici un message à notre attention." rows="3"></textarea>
-            </div>
-            <br>
-            <br>
-
-            
-<<<<<<< HEAD:public/formulaires/form_guide.php
+            <input type="radio" name="civilite" value="Mr." required> Mr.
+            <input type="radio" name="civilite" value="Mme" required> Mme
         </div>
 
         <div class="form-group">
@@ -245,6 +213,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="email" name="email" required>
         </div>
 
+
         <div class="form-group">
             <label for="langue_maternelle" class="required">Langue maternelle</label>
             <input type="text" name="langue_maternelle" required>
@@ -261,83 +230,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <div class="form-group">
-    <label for="langue" class="required">Langues de visite</label>
-    <input type="text" name="langue1" required placeholder="Langue principale">
-    <input type="text" name="langue2" placeholder="Langue secondaire">
-    </div>
-
-
-        <div class="form-file" >
-            <label for="presentation" class="required">Presentation</label>
-            <textarea name="presentation" rows="2" minlength="10" placeholder="Ecrire quelques lignes de présentation qui apparaitront sur votre page dédiée" required></textarea>
+            <label for="langue" class="required">Langues de visite</label>
+            <input type="text" name="langue1" required placeholder="Saisir au moins une langue de visite">
+            <input type="text" name="langue2" placeholder="Langue #2">
         </div>
-        <br>
-        <br>
-        <div class="form-file" >
-            <label for="photo" class="required">Envoyer-nous une photo du guide </label>
-            <input type="file" name="photo" required >
-        </div>
-        <br>
-        <br>
+
         <div class="form-file">
-            <label for="carte_pro" class="required">Envoyez votre carte professionnelle de guide </label>
-            <input type="file" id="carte_pro" accept="image/*,application/pdf" required>
+            <label for="presentation" class="required">Présentation</label>
+            <textarea name="presentation" rows="2" minlength="10" placeholder="Écrire quelques lignes de présentation qui apparaîtront sur votre page dédiée" required></textarea>
         </div>
-        <br>
-        <br>
+        <br><br>
+
+        <div class="form-file">
+            <label for="photo" class="required">Envoyez-nous une photo du guide</label>
+            <input type="file" name="photo" required>
+        </div>
+        <br><br>
+
+        <div class="form-file">
+            <label for="carte_pro" class="required">Envoyez votre carte professionnelle de guide</label>
+            <input type="file" name="carte_pro" id="carte_pro" accept="image/*,application/pdf" required>
+        </div>
+        <br><br>
+
         <div class="form-file">
             <label for="message">Message à notre attention</label>
-            <textarea id="message" placeholder="Vous pouvez saisir ici un message à notre attention." rows="3"></textarea>
+            <textarea id="message" name="message" placeholder="Vous pouvez saisir ici un message à notre attention." rows="3"></textarea>
         </div>
-        <br>
-        <br>
+        <br><br>
+
         <div class="form-group">
-    <label for="password" class="required">Créer un mot de passe</label>
-    <input type="password" name="password" required minlength="8">
-    <?php if (isset($errors['password'])): ?>
-        <span class="error"><?= htmlspecialchars($errors['password']) ?></span>
-    <?php endif; ?>
-</div>
+            <label for="password" class="required">Créer un mot de passe</label>
+            <input type="password" name="password" required minlength="8">
+            <?php if (isset($errors['password'])): ?>
+                <span class="error"><?= htmlspecialchars($errors['password']) ?></span>
+            <?php endif; ?>
+        </div>
 
-<div class="form-group">
-    <label for="password_confirm" class="required">Confirmer le mot de passe</label>
-    <input type="password" name="password_confirm" required>
-    <?php if (isset($errors['password_confirm'])): ?>
-        <span class="error"><?= htmlspecialchars($errors['password_confirm']) ?></span>
-    <?php endif; ?>
-</div>
+        <div class="form-group">
+            <label for="password_confirm" class="required">Confirmer le mot de passe</label>
+            <input type="password" name="password_confirm" required>
+            <?php if (isset($errors['password_confirm'])): ?>
+                <span class="error"><?= htmlspecialchars($errors['password_confirm']) ?></span>
+            <?php endif; ?>
+        </div>
 
-        
         <button type="submit">Soumettre</button>
     </form>
 </div>
-<<<<<<< HEAD
+
 <footer>
     <div class="footer-container">
         <div class="footer-section about">
             <h2>Dour Tounes</h2>
             <p>Rejoignez notre plateforme et attirez plus de voyageurs en quelques minutes. Partagez votre passion et faites découvrir la Tunisie.</p>
         </div>
-=======
-=======
-            <button type="submit">Soumettre</button>
-        </form>
-    </div>
->>>>>>> 9d60e60 (Sauvegarde temporaire avant pull):HTML/formulaireguide.html
 
-
-
-
-
-    <footer>
-        <div class="footer-container">
-            <div class="footer-section about">
-                <h2>Dour Tounes</h2>
-                <p>Rejoignez notre plateforme et attirez plus de voyageurs en quelques minutes. Partagez votre passion et faites découvrir la Tunisie.</p>
-            </div>
->>>>>>> 486efc290e755ce9730c99732efb6de6d7071a90
-
-<<<<<<< HEAD:public/formulaires/form_guide.php
         <div class="footer-section links">
             <h3>Liens utiles</h3>
             <ul>
@@ -355,49 +303,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p>Téléphone : +33 1 23 45 67 89</p>
             <p>Adresse : 123, Rue des Voyages, Tunis, Tunis</p>
         </div>
-=======
-            <div class="footer-section links">
-                <h3>Liens utiles</h3>
-                <ul>
-                    <li><a href="#">Accueil</a></li>
-                    <li><a href="#">À propos</a></li>
-                    <li><a href="#">Nos guides</a></li>
-                    <li><a href="#">Avis</a></li>
-                    <li><a href="#">Contact</a></li>
-                </ul>
-            </div>
 
-<<<<<<< HEAD
         <div class="footer-section social">
             <h3>Suivez-nous</h3>
             <div class="social-icons">
                 <a href="#"><img src="../images/logos/fb.webp" alt="Facebook"></a>
                 <a href="#"><img src="../images/logos/mail.png" alt="email"></a>
                 <a href="#"><img src="../images/logos/insta.jpeg" alt="Instagram"></a>
-=======
-            <div class="footer-section contact">
-                <h3>Contact</h3>
-                <p>Email : <a href="mailto:contact@guideyourtrip.com">contact@dour-tounes.com</a></p>
-                <p>Téléphone : +33 1 23 45 67 89</p>
-                <p>Adresse : 123, Rue des Voyages, Tunis, Tunis</p>
-            </div>
->>>>>>> 9d60e60 (Sauvegarde temporaire avant pull):HTML/formulaireguide.html
-
-            <div class="footer-section social">
-                <h3>Suivez-nous</h3>
-                <div class="social-icons">
-                    <a href="#"><img src="../images/fb.webp" alt="Facebook"></a>
-                    <a href="#"><img src="../images/mail.png" alt="email"></a>
-                    <a href="#"><img src="../images/insta.jpeg" alt="Instagram"></a>
-                </div>
->>>>>>> 486efc290e755ce9730c99732efb6de6d7071a90
             </div>
         </div>
+    </div>
 
-        <div class="footer-bottom">
-            <p>&copy; 2025 Dour Tounes | Tous droits réservés.</p>
-        </div>
-    </footer>
+    <div class="footer-bottom">
+        <p>&copy; 2025 Dour Tounes | Tous droits réservés.</p>
+    </div>
+</footer>
+
     <script>
        // Classe principale de validation du formulaire
 class FormValidator {
@@ -465,7 +386,7 @@ class FormValidator {
         // Validation de la présentation (longueur minimale)
         const presentationInput = this.form.querySelector('[name="presentation"]');
         if (presentationInput) {
-            presentationInput.addEventListener('input', () => this.validateMinLength(presentationInput, 350));
+            presentationInput.addEventListener('input', () => this.validateMinLength(presentationInput, 10));
         }
     }
 
@@ -531,31 +452,31 @@ class FormValidator {
         return true;
     }
 
-    // Formate le numéro de téléphone pendant la saisie
-    formatPhoneNumber(input) {
-        // Garde uniquement les chiffres et le caractère +
-        let value = input.value.replace(/[^\d+]/g, '');
-        
-        // S'assure que le + est uniquement au début
-        if (value.indexOf('+') > 0) {
-            value = value.replace(/\+/g, '');
-            value = '+' + value;
-        }
-        
-        input.value = value;
+    document.getElementById("myForm").addEventListener("submit", function(e) {
+    e.preventDefault();  // Empêche la soumission immédiate pour traitement
+
+    let phoneInput = document.getElementById("telephone").value;
+
+    // Supprimer tous les caractères non numériques sauf le +
+    let formattedPhone = phoneInput.replace(/\D/g, '');
+
+    // Ajouter l'indicatif +216 si le numéro est pour la Tunisie
+    if (formattedPhone.length === 8) {
+        formattedPhone = '+216' + formattedPhone; // Si c'est un numéro local à 8 chiffres
     }
 
-    // Valide le numéro de téléphone
-    validatePhoneNumber(input) {
-        // Autorise les numéros internationaux avec ou sans indicatif
-        const phoneRegex = /^(?:\+?\d{1,4}[\s-]?)?(?:\(\d{1,5}\)[\s-]?)?\d{6,}$/;
-        if (input.value && !phoneRegex.test(input.value)) {
-            this.showError(input, 'Format invalide (ex: +216 12 345 678)');
-            return false;
-        }
-        return true;
+    // Vérifier que le numéro de téléphone a bien un format international valide
+    if (!/^\+216\d{8}$/.test(formattedPhone)) {
+        alert("Le numéro de téléphone n'est pas valide.");
+        return;
     }
 
+    // Remplacer la valeur du champ téléphone avec le numéro formaté
+    document.getElementById("telephone").value = formattedPhone;
+
+    // Soumettre le formulaire après validation
+    this.submit();
+});
     // Valide une case à cocher obligatoire
     validateCheckbox(input) {
         if (input.required && !input.checked) {
@@ -743,7 +664,7 @@ class FormValidator {
 
         const presentationInput = this.form.querySelector('[name="presentation"]');
         if (presentationInput && presentationInput.required) {
-            isValid = this.validateMinLength(presentationInput, 350) && isValid;
+            isValid = this.validateMinLength(presentationInput, 10) && isValid;
         }
 
         return isValid && Object.keys(this.errors).length === 0;
